@@ -3,6 +3,7 @@ from src.constants import TEST_IMAGE_HEIGHT
 from src.optimization.base import ExperimentGenerator
 from src.optimization.experiment import Experiment
 from src.preprocess.features import bens
+from src.preprocess.features import enhance_fovea
 from src.preprocess.normalize import crop_dark_borders
 from src.preprocess.normalize import resize
 from src.preprocess.normalize import eight_bit_normalization
@@ -25,6 +26,18 @@ EXPERIMENTS = [
                 }
             ),
             (
+                enhance_fovea,
+                {
+                    "radius": 7,
+                    "border_tol": 25,
+                    "blur_sigma": 4,
+                    "fovea_aoi_size": 30,
+                    "width": 100,
+                    "height": 100
+                }
+            ),
+
+            (
                 bens,
                 {
                     "image_weight": 4, "blur_window": (0, 0), "blur_sigma_x": 10, "blur_weight": -4, "bias": 128
@@ -36,8 +49,8 @@ EXPERIMENTS = [
             )
         ],
         description="Development",
-        train_test_data_frame="../input/train.csv",
-        train_test_directory="../input/train_images",
+        train_test_data_frame="/home/jake/Data/aptos2019-blindness-detection/train.csv",
+        train_test_directory="/home/jake/Data/aptos2019-blindness-detection/train_images",
         model=("MnistExampleV01", {}),
         batch_size=100,
         optimzier=("SGD", {"lr": 0.0001, "momentum": 0.9}),

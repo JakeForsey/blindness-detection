@@ -66,7 +66,7 @@ def test(model, device, test_loader) -> Tuple[float, float]:
     return test_loss, accuracy
 
 
-def split_data_frame(df, iterations, test_size) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def split_data_frame(df: pd.DataFrame, iterations: int, test_size: float) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     for iteration in range(iterations):
         test_df = df.sample(frac=test_size, random_state=iteration)
@@ -83,7 +83,7 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
 
     results = []
     for cv_iteration, (train_df, test_df) in enumerate(split_data_frame(
-            df, CROSS_VALIDATION_ITERATIONS, experiment.test_size
+            df, CROSS_VALIDATION_ITERATIONS, experiment.test_size()
     )):
 
         pipeline = Pipeline(experiment.pipeline_stages(), debug=debug_pipeline)
@@ -111,9 +111,10 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
         model = experiment.model()
         if DEVICE == "cuda":
             model.cuda()
-        optimizer = experiment.optimizer()
+        optimizer, optim_kwargs = experiment.optimizer()
+        optimizer(model.parameters(), **optim_kwargs)
 
-        metric_df = pd.DataFrame(columns=["experiement_id", "epoch", "test_loss", "test_accuracy"])
+        metric_df = pd.DataFrame(columns=["experiment_id", "epoch", "test_loss", "test_accuracy"])
         for epoch in range(1, MAX_EPOCHS + 1):
             LOGGER.info("Epoch: %s", epoch)
 

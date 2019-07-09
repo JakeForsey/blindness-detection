@@ -17,12 +17,18 @@ class Pipeline:
                 image_stages.append((f.__name__, image))
 
         if self._debug:
-            fig, axes = plt.subplots(1, len(image_stages))
-            fig.set_figheight(10)
+            most_bands = max([stage[1].shape[2] for stage in image_stages])
+
+            fig, axes = plt.subplots(len(image_stages), most_bands + 1)
+            fig.set_figheight(15)
             fig.set_figwidth(30)
 
-            for ax, (stage, image_stage) in zip(axes, image_stages):
-                ax.imshow(image_stage)
-                ax.set_title(stage)
+            for ax, (stage, image) in zip(axes, image_stages):
+                ax[0].imshow(image[:, :, :3])
+
+                for channel_idx in range(0, image.shape[2]):
+                    ax[channel_idx + 1].imshow(image[:, :, channel_idx])
+
+                ax[0].set_title(stage)
 
         return image

@@ -60,13 +60,13 @@ class Experiment:
         return pd.read_csv(self._train_test_data_frame)
 
     def model(self):
-        return MODELS[self._model_string](self._model_kwargs)
+        return MODELS[self._model_string](**self._model_kwargs)
 
     def batch_size(self):
         return self._batch_size
 
     def optimizer(self):
-        return OPTIMIZERS[self._optimzier_string](self._optimizer_kwargs)
+        return OPTIMIZERS[self._optimzier_string], self._optimizer_kwargs
 
     def test_size(self):
         return self._test_size
