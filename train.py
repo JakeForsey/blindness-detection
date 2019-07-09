@@ -20,8 +20,11 @@ from src.optimization.result import Result
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
-CROSS_VALIDATION_ITERATIONS = 2
-MAX_EPOCHS = 10
+DEVELOP_MODE = True
+if DEVELOP_MODE:
+    LOGGER.warn("Running in develop mode, only 10% of data will be used.")
+
+CROSS_VALIDATION_ITERATIONS = 3
 DEVICE = "cuda"
 
 
@@ -85,6 +88,9 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
     for cv_iteration, (train_df, test_df) in enumerate(split_data_frame(
             df, CROSS_VALIDATION_ITERATIONS, experiment.test_size()
     )):
+        if DEVELOP_MODE:
+            train_df = train_df.sample(frac=0.1).reset_index()
+            test_df = test_df.sample(frac=0.1).reset_index()
 
         pipeline = Pipeline(experiment.pipeline_stages(), debug=debug_pipeline)
 
@@ -111,11 +117,12 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
         model = experiment.model(input_shape=train_ds[0][0].shape)
         if DEVICE == "cuda":
             model.cuda()
+
         optimizer_class, optim_kwargs = experiment.optimizer()
         optimizer = optimizer_class(model.parameters(), **optim_kwargs)
 
         metric_df = pd.DataFrame(columns=["experiment_id", "epoch", "test_loss", "test_accuracy"])
-        for epoch in range(1, MAX_EPOCHS + 1):
+        for epoch in range(1, experiment.max_epochs() + 1):
             LOGGER.info("Epoch: %s", epoch)
 
             train(1, model, DEVICE, train_loader, optimizer, epoch)
@@ -127,7 +134,7 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
                 "epoch": epoch,
                 "test_loss": loss,
                 "test_accuracy": accuracy
-            })
+            }, ignore_index=True)
 
         results.append(Result(experiment, metric_df))
 

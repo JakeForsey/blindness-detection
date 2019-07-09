@@ -31,6 +31,7 @@ class Experiment:
             batch_size: int,
             optimzier: Tuple[str, dict],
             test_size: float,
+            max_epochs: int,
             description: Optional[str] = None,
 
     ):
@@ -41,6 +42,7 @@ class Experiment:
         self._model_string, self._model_kwargs = model
         self._batch_size = batch_size
         self._optimzier_string, self._optimizer_kwargs = optimzier
+        self._max_epochs = max_epochs
         self._test_size = test_size
 
         if description is None:
@@ -70,6 +72,9 @@ class Experiment:
 
     def test_size(self):
         return self._test_size
+
+    def max_epochs(self):
+        return self._max_epochs
 
     def description(self):
         return self._description
