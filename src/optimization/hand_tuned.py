@@ -10,7 +10,7 @@ from src.preprocess.normalize import eight_bit_normalization
 
 EXPERIMENTS = [
     Experiment(
-        pipeline_stages =[
+        pipeline_stages=[
             (
                 crop_dark_borders,
                 {
@@ -43,7 +43,6 @@ EXPERIMENTS = [
         optimzier=("SGD", {"lr": 0.0001, "momentum": 0.9}),
         test_size=0.2
     ),
-
 ]
 
 
