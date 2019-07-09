@@ -108,11 +108,11 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
             batch_size=experiment.batch_size()
         )
 
-        model = experiment.model()
+        model = experiment.model(input_shape=train_ds[0][0].shape)
         if DEVICE == "cuda":
             model.cuda()
-        optimizer, optim_kwargs = experiment.optimizer()
-        optimizer(model.parameters(), **optim_kwargs)
+        optimizer_class, optim_kwargs = experiment.optimizer()
+        optimizer = optimizer_class(model.parameters(), **optim_kwargs)
 
         metric_df = pd.DataFrame(columns=["experiment_id", "epoch", "test_loss", "test_accuracy"])
         for epoch in range(1, MAX_EPOCHS + 1):

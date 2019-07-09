@@ -1,5 +1,5 @@
 from torch import nn
-import torch.functional as F
+import torch.nn.functional as F
 
 
 class MnistExampleV01(nn.Module):
@@ -9,9 +9,9 @@ class MnistExampleV01(nn.Module):
     Original:
     https://github.com/pytorch/examples/blob/master/mnist/main.py
     """
-    def __init__(self):
+    def __init__(self, shape):
         super().__init__()
-        self.conv1 = nn.Conv2d(3, 20, 5, 1)
+        self.conv1 = nn.Conv2d(shape[0], 20, 5, 1)
         self.conv2 = nn.Conv2d(20, 50, 5, 1)
         self.fc1 = nn.Linear(50 * 22 * 22, 500)
         self.fc2 = nn.Linear(500, 5)

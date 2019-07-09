@@ -59,8 +59,8 @@ class Experiment:
     def train_test_data_frame(self):
         return pd.read_csv(self._train_test_data_frame)
 
-    def model(self):
-        return MODELS[self._model_string](**self._model_kwargs)
+    def model(self, input_shape):
+        return MODELS[self._model_string](shape=input_shape, **self._model_kwargs)
 
     def batch_size(self):
         return self._batch_size
