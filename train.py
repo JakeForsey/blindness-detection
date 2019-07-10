@@ -6,6 +6,7 @@ from typing import Tuple
 from typing import List
 
 import pandas as pd
+from sklearn.metrics import confusion_matrix
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader as TorchDataLoader
@@ -19,6 +20,8 @@ from src.optimization.result import Result
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
+
+DATA_LOADER_WORKERS = 8
 
 DEVELOP_MODE = False
 DEVELOP_MODE_PERCENT = 5
@@ -62,6 +65,8 @@ def test(model, device, test_loader) -> Tuple[float, float]:
             output = model(data)
             test_loss += F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss
             pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
+            print(confusion_matrix(target.detach().cpu().numpy(), pred.detach().cpu().numpy()))
+
             correct += pred.eq(target.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
@@ -108,7 +113,8 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
         )
         train_loader = TorchDataLoader(
             train_ds,
-            batch_size=experiment.batch_size()
+            batch_size=experiment.batch_size(),
+            num_workers=DATA_LOADER_WORKERS,
         )
 
         test_ds = APTOSDataset(
@@ -118,7 +124,8 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
         )
         test_loader = TorchDataLoader(
             test_ds,
-            batch_size=experiment.batch_size()
+            batch_size=experiment.batch_size(),
+            num_workers=1,
         )
 
         model = experiment.model(input_shape=train_ds[0][0].shape)
