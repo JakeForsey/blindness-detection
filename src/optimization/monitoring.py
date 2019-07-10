@@ -10,7 +10,7 @@ from sklearn.metrics import cohen_kappa_score
 from src.optimization.experiment import Experiment
 
 
-class APTOSTensorboard:
+class APTOSMonitor:
 
     def __init__(self, experiment: Experiment, cv_iteration: int, base_directory="results/logdir"):
         if not os.path.isdir(base_directory):
@@ -20,6 +20,12 @@ class APTOSTensorboard:
         self._summary_writer = SummaryWriter(
             os.path.join(base_directory, f"{experiment.id()} - {cv_iteration}")
         )
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._summary_writer.close()
 
     def process(self, epoch, predictions_proba: torch.Tensor, predictions,  targets, ids):
 

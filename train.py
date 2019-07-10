@@ -19,7 +19,7 @@ from src.data.dataset import APTOSDataset
 from src.optimization.hand_tuned import HandTunedExperiements
 from src.optimization.experiment import Experiment
 from src.optimization.result import Result
-from src.optimization.monitoring import APTOSTensorboard
+from src.optimization.monitoring import APTOSMonitor
 
 
 LOGGER = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 DATA_LOADER_WORKERS = 6
 
-DEVELOP_MODE = True
+DEVELOP_MODE = False
 DEVELOP_MODE_SAMPLES = 10
 
 if DEVELOP_MODE:
@@ -98,41 +98,40 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
     results = []
     for cv_iteration in range(1,  CROSS_VALIDATION_ITERATIONS + 1):
         LOGGER.info("Cross validation iteration: %s", cv_iteration)
-        aptos_tensorboard = APTOSTensorboard(
-            experiment, cv_iteration
-        )
+        with APTOSMonitor(experiment, cv_iteration) as monitor:
 
-        test_size = experiment.test_size()
-        train_ds, test_ds = random_split(
-            dataset,
-            [round((1 - test_size) * len(dataset)), round(test_size * len(dataset))]
-        )
+            test_size = experiment.test_size()
+            train_ds, test_ds = random_split(
+                dataset,
+                [round((1 - test_size) * len(dataset)), round(test_size * len(dataset))]
+            )
 
-        train_loader = TorchDataLoader(
-            train_ds,
-            batch_size=experiment.batch_size(),
-            num_workers=DATA_LOADER_WORKERS,
-        )
+            train_loader = TorchDataLoader(
+                train_ds,
+                batch_size=experiment.batch_size(),
+                num_workers=DATA_LOADER_WORKERS,
+            )
 
-        test_loader = TorchDataLoader(
-            test_ds,
-            batch_size=experiment.batch_size(),
-            num_workers=DATA_LOADER_WORKERS,
-        )
+            test_loader = TorchDataLoader(
+                test_ds,
+                batch_size=experiment.batch_size(),
+                num_workers=DATA_LOADER_WORKERS,
+            )
 
-        model = experiment.model(input_shape=train_ds[0][0].shape)
+            model = experiment.model(input_shape=train_ds[0][0].shape)
 
-        optimizer_class, optim_kwargs = experiment.optimizer()
-        optimizer = optimizer_class(model.parameters(), **optim_kwargs)
+            optimizer_class, optim_kwargs = experiment.optimizer()
+            optimizer = optimizer_class(model.parameters(), **optim_kwargs)
 
-        metric_df = pd.DataFrame(columns=["experiment_id", "epoch", "test_loss", "test_accuracy"])
-        for epoch in range(1, experiment.max_epochs() + 1):
-            LOGGER.info("Epoch: %s", epoch)
+            metric_df = pd.DataFrame(columns=["experiment_id", "epoch", "test_loss", "test_accuracy"])
+            for epoch in range(1, experiment.max_epochs() + 1):
+                LOGGER.info("Epoch: %s", epoch)
 
-            train(1, model, train_loader, optimizer, epoch)
-            predictions_proba, predictions,  targets, ids = test(model, test_loader)
+                train(1, model, train_loader, optimizer, epoch)
+                predictions_proba, predictions,  targets, ids = test(model, test_loader)
 
-            aptos_tensorboard.process(epoch, predictions_proba, predictions,  targets, ids)
+                if not DEVELOP_MODE:
+                    monitor.process(epoch, predictions_proba, predictions,  targets, ids)
 
         predictions = predictions.tolist()
         targets = targets.tolist()
