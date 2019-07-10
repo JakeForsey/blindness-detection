@@ -35,7 +35,7 @@ class APTOSDataset(TorchDataset):
 
         diagnosis_class = self._data_frame["diagnosis"][index]
 
-        return preprocessed_image.astype(np.float32), np.array(diagnosis_class, dtype=np.int64)
+        return preprocessed_image.astype(np.float32), np.array(diagnosis_class, dtype=np.int64), id_code
 
     def __len__(self):
         return len(self._data_frame)

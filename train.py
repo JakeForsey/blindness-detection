@@ -19,6 +19,7 @@ from src.data.dataset import APTOSDataset
 from src.optimization.hand_tuned import HandTunedExperiements
 from src.optimization.experiment import Experiment
 from src.optimization.result import Result
+from src.optimization.monitoring import APTOSTensorboard
 
 
 LOGGER = logging.getLogger(__name__)
@@ -26,7 +27,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 DATA_LOADER_WORKERS = 6
 
-DEVELOP_MODE = False
+DEVELOP_MODE = True
 DEVELOP_MODE_SAMPLES = 10
 
 if DEVELOP_MODE:
@@ -45,7 +46,7 @@ if DEVICE == "cuda:0":
 
 def train(log_interval, model, train_loader, optimizer, epoch):
     model.train()
-    for batch_idx, (data, target) in enumerate(train_loader):
+    for batch_idx, (data, target, _) in enumerate(train_loader):
 
         optimizer.zero_grad()
         output = model(data)
@@ -61,23 +62,24 @@ def train(log_interval, model, train_loader, optimizer, epoch):
                        100. * batch_idx / len(train_loader), loss.item()))
 
 
-def test(model, test_loader) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+def test(model: torch.nn.Module, test_loader: TorchDataLoader) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, List[str]]:
     model.eval()
 
     predictions = []
     predictions_proba = []
     targets = []
+    ids = []
     with torch.no_grad():
-        for data, target in test_loader:
+        for data, target, id in test_loader:
             preds_proba = model(data)
-            predictions_proba.extend(preds_proba)
-
             preds = preds_proba.argmax(dim=1)
+
+            predictions_proba.extend(preds_proba)
             predictions.extend(preds)
-
             targets.extend(target)
+            ids.extend(id)
 
-    return torch.stack(predictions_proba), torch.stack(predictions),  torch.stack(targets)
+    return torch.stack(predictions_proba), torch.stack(predictions),  torch.stack(targets), ids
 
 
 def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List[Result]:
@@ -96,6 +98,9 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
     results = []
     for cv_iteration in range(1,  CROSS_VALIDATION_ITERATIONS + 1):
         LOGGER.info("Cross validation iteration: %s", cv_iteration)
+        aptos_tensorboard = APTOSTensorboard(
+            experiment, cv_iteration
+        )
 
         test_size = experiment.test_size()
         train_ds, test_ds = random_split(
@@ -125,7 +130,9 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
             LOGGER.info("Epoch: %s", epoch)
 
             train(1, model, train_loader, optimizer, epoch)
-            predictions_proba, predictions,  targets = test(model, test_loader)
+            predictions_proba, predictions,  targets, ids = test(model, test_loader)
+
+            aptos_tensorboard.process(epoch, predictions_proba, predictions,  targets, ids)
 
         predictions = predictions.tolist()
         targets = targets.tolist()
@@ -135,6 +142,7 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
             "cross_validation_iteration": [cv_iteration for _ in range(len(targets))],
             "targets": targets,
             "predictions": predictions,
+            "id_code": ids
         })
 
         results.append(Result(experiment, metric_df, results_df))

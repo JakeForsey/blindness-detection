@@ -2,11 +2,6 @@ from src.constants import TEST_IMAGE_WIDTH
 from src.constants import TEST_IMAGE_HEIGHT
 from src.optimization.base import ExperimentGenerator
 from src.optimization.experiment import Experiment
-from src.preprocess.features import bens
-from src.preprocess.features import enhance_fovea
-from src.preprocess.normalize import crop_dark_borders
-from src.preprocess.normalize import resize
-from src.preprocess.normalize import eight_bit_normalization
 
 
 EXPERIMENTS = [
@@ -110,8 +105,9 @@ class HandTunedExperiements(ExperimentGenerator):
         self._index = 0
 
     def __next__(self):
+        self._index += 1
         if self._index <= len(self._experiments):
-            return self._experiments[self._index]
+            return self._experiments[self._index - 1]
         else:
             raise StopIteration
 
