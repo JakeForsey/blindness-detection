@@ -11,15 +11,15 @@ EXPERIMENTS = [
             (
                 "crop_dark_borders",
                 {
-                    "tol": 10
-                }
+                    "tol": 10,
+                },
             ),
             (
                 "resize",
                 {
                     "width": TEST_IMAGE_WIDTH,
-                    "height": TEST_IMAGE_HEIGHT
-                }
+                    "height": TEST_IMAGE_HEIGHT,
+                },
             ),
             (
                 "bens",
@@ -28,36 +28,40 @@ EXPERIMENTS = [
                     "blur_window": (0, 0),
                     "blur_sigma_x": 20,
                     "blur_weight": -4,
-                    "bias": 128
-                }
+                    "bias": 128,
+                },
             ),
             (
                 "eight_bit_normalization",
                 {}
             )
         ],
-        train_test_data_frames=["/home/jake/Data/aptos2019-blindness-detection/train.csv"],
-        train_test_directories=["/home/jake/Data/aptos2019-blindness-detection/train_images"],
+        train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
+        train_test_directories=["data/aptos2019-blindness-detection/train_images"],
         model=("MnistExampleV01", {}),
         batch_size=100,
         optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
-        max_epochs=3
+        max_epochs=3,
     ),
     Experiment(
         pipeline_stages=[
             (
                 "crop_dark_borders",
                 {
-                    "tol": 10
-                }
+                    "tol": 10,
+                },
+            ),
+            (
+                "normalize_left_right",
+                {},
             ),
             (
                 "resize",
                 {
                     "width": TEST_IMAGE_WIDTH,
-                    "height": TEST_IMAGE_HEIGHT
-                }
+                    "height": TEST_IMAGE_HEIGHT,
+                },
             ),
             (
                 "enhance_fovea",
@@ -67,8 +71,8 @@ EXPERIMENTS = [
                     "blur_sigma": 4,
                     "fovea_aoi_size": 160,
                     "width": TEST_IMAGE_WIDTH,
-                    "height": TEST_IMAGE_HEIGHT
-                }
+                    "height": TEST_IMAGE_HEIGHT,
+                },
             ),
             (
                 "bens",
@@ -77,8 +81,8 @@ EXPERIMENTS = [
                     "blur_window": (0, 0),
                     "blur_sigma_x": 10,
                     "blur_weight": -4,
-                    "bias": 128
-                }
+                    "bias": 128,
+                },
             ),
             (
                 "eight_bit_normalization",
@@ -86,18 +90,18 @@ EXPERIMENTS = [
             )
         ],
         description="Development",
-        train_test_data_frames=["/home/jake/Data/aptos2019-blindness-detection/train.csv"],
-        train_test_directories=["/home/jake/Data/aptos2019-blindness-detection/train_images"],
+        train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
+        train_test_directories=["data/aptos2019-blindness-detection/train_images"],
         model=("MnistExampleV01", {}),
         batch_size=100,
         optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
-        max_epochs=3
+        max_epochs=3,
     ),
 ]
 
 
-class HandTunedExperiements(ExperimentGenerator):
+class HandTunedExperiments(ExperimentGenerator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

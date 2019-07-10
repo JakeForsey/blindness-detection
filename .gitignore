@@ -1,4 +1,8 @@
-env/*
-.idea/*
-*.pyc
+.idea/
+.vscode/
+
+env/
+data/
 results/*
+
+**/__pycache__
