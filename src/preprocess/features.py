@@ -39,11 +39,11 @@ def enhance_fovea(image: np.array, radius, border_tol, blur_sigma, fovea_aoi_siz
     fovea_aoi = image[
                 max(0, fovea_loc[1] - half_size): min(image.shape[0], fovea_loc[1] + half_size),
                 max(0, fovea_loc[0] - half_size): min(image.shape[0], fovea_loc[0] + half_size),
-                :
+                # 1st band most clearly highlights exudates
+                0
                 ]
 
     fovea_aoi = cv2.resize(fovea_aoi, (width, height))
-    fovea_aoi = cv2.cvtColor(fovea_aoi, cv2.COLOR_BGR2GRAY)
     fovea_aoi = np.expand_dims(fovea_aoi, 2)
 
     image = np.concatenate([image, fovea_aoi], axis=2)

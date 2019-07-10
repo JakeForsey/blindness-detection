@@ -12,7 +12,7 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader as TorchDataLoader
 
 from src.preprocess.pipeline import Pipeline
-from src.data.dataset import APTOSDataset
+from src.data.dataset import APTOS2019Dataset
 from src.optimization.hand_tuned import HandTunedExperiements
 from src.optimization.experiment import Experiment
 from src.optimization.result import Result
@@ -21,7 +21,7 @@ from src.optimization.result import Result
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
-DATA_LOADER_WORKERS = 8
+DATA_LOADER_WORKERS = 6
 
 DEVELOP_MODE = False
 DEVELOP_MODE_PERCENT = 5
@@ -59,15 +59,20 @@ def test(model, device, test_loader) -> Tuple[float, float]:
     model.eval()
     test_loss = 0
     correct = 0
+    preds = []
+    targets = []
     with torch.no_grad():
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
             output = model(data)
             test_loss += F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss
             pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
-            print(confusion_matrix(target.detach().cpu().numpy(), pred.detach().cpu().numpy()))
+            preds.extend(list(pred.detach().cpu().numpy()))
+            targets.extend(list(target.detach().cpu().numpy()))
 
             correct += pred.eq(target.view_as(pred)).sum().item()
+
+    print(confusion_matrix(targets, preds))
 
     test_loss /= len(test_loader.dataset)
     accuracy = 100. * correct / len(test_loader.dataset)
@@ -106,7 +111,7 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
 
         pipeline = Pipeline(experiment.pipeline_stages(), debug=debug_pipeline)
 
-        train_ds = APTOSDataset(
+        train_ds = APTOS2019Dataset(
             train_df,
             experiment.train_test_directory(),
             pipeline
@@ -117,7 +122,7 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
             num_workers=DATA_LOADER_WORKERS,
         )
 
-        test_ds = APTOSDataset(
+        test_ds = APTOS2019Dataset(
             test_df,
             experiment.train_test_directory(),
             pipeline
@@ -125,7 +130,7 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
         test_loader = TorchDataLoader(
             test_ds,
             batch_size=experiment.batch_size(),
-            num_workers=1,
+            num_workers=DATA_LOADER_WORKERS,
         )
 
         model = experiment.model(input_shape=train_ds[0][0].shape)
