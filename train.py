@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Searches models and hyper parameters.
 """
@@ -16,7 +17,7 @@ from torch.utils.data import random_split
 
 from src.preprocess.pipeline import Pipeline
 from src.data.dataset import APTOSDataset
-from src.optimization.hand_tuned import HandTunedExperiements
+from src.optimization.hand_tuned import HandTunedExperiments
 from src.optimization.experiment import Experiment
 from src.optimization.result import Result
 
@@ -143,8 +144,8 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
 
 
 def main():
-    experiment_generator = HandTunedExperiements()
-    
+    experiment_generator = HandTunedExperiments()
+
     for experiment in experiment_generator:
         # Every time an experiment is completed, persist the cross validation results
         results = run_experiment(experiment)
