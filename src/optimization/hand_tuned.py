@@ -52,7 +52,7 @@ EXPERIMENTS = [
         train_test_directory="/home/jake/Data/aptos2019-blindness-detection/train_images",
         model=("MnistExampleV01", {}),
         batch_size=100,
-        optimzier=("SGD", {"lr": 0.01, "momentum": 0.9}),
+        optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
         max_epochs=100
     ),
