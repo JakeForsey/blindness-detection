@@ -9,7 +9,7 @@ from torch.utils.data import Dataset as TorchDataset
 from src.preprocess.pipeline import Pipeline
 
 
-class APTOS2019Dataset(TorchDataset):
+class APTOSDataset(TorchDataset):
     def __init__(self, data_frame: pd.DataFrame, data_directory: str, preprocess_pipeline: Pipeline):
         super().__init__()
         self._data_frame = data_frame
@@ -73,7 +73,7 @@ class APTOS2015Dataset(TorchDataset):
         return len(self._data_frame)
 
 
-class APTOSSubmissionDataset(APTOS2019Dataset):
+class APTOSSubmissionDataset(APTOSDataset):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

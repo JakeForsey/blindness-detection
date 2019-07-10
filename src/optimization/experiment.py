@@ -1,7 +1,7 @@
+import json
 import time
 from typing import Tuple
 from typing import List
-from typing import Callable
 from typing import Optional
 from uuid import uuid4
 
@@ -9,6 +9,11 @@ import pandas as pd
 from torch import optim
 
 from src.models.mnist import MnistExampleV01
+from src.preprocess.normalize import crop_dark_borders
+from src.preprocess.normalize import resize
+from src.preprocess.normalize import eight_bit_normalization
+from src.preprocess.features import bens
+from src.preprocess.features import enhance_fovea
 
 
 OPTIMIZERS = {
@@ -19,14 +24,22 @@ MODELS = {
     "MnistExampleV01": MnistExampleV01
 }
 
+STAGES = {
+    "crop_dark_borders": crop_dark_borders,
+    "resize": resize,
+    "enhance_fovea": enhance_fovea,
+    "bens": bens,
+    "eight_bit_normalization": eight_bit_normalization
+}
+
 
 class Experiment:
 
     def __init__(
             self,
-            pipeline_stages: List[Tuple[Callable, dict]],
-            train_test_directory: str,
-            train_test_data_frame: str,
+            pipeline_stages: List[Tuple[str, dict]],
+            train_test_directories: List[str],
+            train_test_data_frames: List[str],
             model: Tuple[str, dict],
             batch_size: int,
             optimzier: Tuple[str, dict],
@@ -35,10 +48,10 @@ class Experiment:
             description: Optional[str] = None,
 
     ):
-        self._id = uuid4()
+        self._id = str(uuid4())
         self._pipeline_stages = pipeline_stages
-        self._train_test_directory = train_test_directory
-        self._train_test_data_frame = train_test_data_frame
+        self._train_test_directories = train_test_directories
+        self._train_test_data_frames = train_test_data_frames
         self._model_string, self._model_kwargs = model
         self._batch_size = batch_size
         self._optimzier_string, self._optimizer_kwargs = optimzier
@@ -50,16 +63,16 @@ class Experiment:
         self._description = description
 
     def id(self):
-        return self._pipeline_stages
+        return self._id
 
     def pipeline_stages(self):
-        return self._pipeline_stages
+        return [(STAGES[stage], kwargs) for stage, kwargs in self._pipeline_stages]
 
-    def train_test_directory(self) -> str:
-        return self._train_test_directory
+    def train_test_directories(self) -> List[str]:
+        return self._train_test_directories
 
-    def train_test_data_frame(self):
-        return pd.read_csv(self._train_test_data_frame)
+    def train_test_data_frames(self):
+        return [pd.read_csv(file_path) for file_path in self._train_test_data_frames]
 
     def model(self, input_shape):
         return MODELS[self._model_string](shape=input_shape, **self._model_kwargs)
@@ -79,8 +92,21 @@ class Experiment:
     def description(self):
         return self._description
 
-    def from_json(self, json):
+    def from_json(self, json_string):
         raise NotImplemented()
 
-    def to_serializable(self):
-        raise NotImplemented()
+    def to_json(self):
+        return json.dumps({
+            "id": self._id,
+            "description": self._description,
+            "pipeline_stages": self._pipeline_stages,
+            "train_test_directories": str(self._train_test_directories),
+            "train_test_data_frames": str(self._train_test_data_frames),
+            "model": self._model_string,
+            "model_kwargs": self._model_kwargs,
+            "batch_size": self._batch_size,
+            "optimizer": self._optimzier_string,
+            "optimizer_kwargs": self._optimizer_kwargs,
+            "max_epochs": self._max_epochs,
+            "test_size": self._test_size,
+        })
