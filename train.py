@@ -8,7 +8,6 @@ from typing import Tuple
 from typing import List
 
 import pandas as pd
-from sklearn.metrics import confusion_matrix
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader as TorchDataLoader
@@ -27,7 +26,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 DATA_LOADER_WORKERS = 6
 
-DEVELOP_MODE = True
+DEVELOP_MODE = False
 DEVELOP_MODE_SAMPLES = 10
 
 if DEVELOP_MODE:
