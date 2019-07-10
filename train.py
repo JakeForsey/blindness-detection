@@ -2,17 +2,20 @@
 Searches models and hyper parameters.
 """
 import logging
+import os
+import sqlite3
 from typing import Tuple
 from typing import List
 
 import pandas as pd
-from sklearn.metrics import confusion_matrix
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader as TorchDataLoader
+from torch.utils.data import ConcatDataset as TorchConcatDataset
+from torch.utils.data import random_split
 
 from src.preprocess.pipeline import Pipeline
-from src.data.dataset import APTOS2019Dataset
+from src.data.dataset import APTOSDataset
 from src.optimization.hand_tuned import HandTunedExperiements
 from src.optimization.experiment import Experiment
 from src.optimization.result import Result
@@ -24,22 +27,25 @@ logging.basicConfig(level=logging.DEBUG)
 DATA_LOADER_WORKERS = 6
 
 DEVELOP_MODE = False
-DEVELOP_MODE_PERCENT = 5
+DEVELOP_MODE_SAMPLES = 10
 
 if DEVELOP_MODE:
-    LOGGER.warn("Running in develop mode, only %s percent of data will be used.", DEVELOP_MODE_PERCENT)
+    LOGGER.warn("Running in develop mode, only %s samples will be used.", DEVELOP_MODE_SAMPLES)
 
 CROSS_VALIDATION_ITERATIONS = 3
+
+RESULTS_DIRECTORY = "./results"
+if not os.path.isdir(RESULTS_DIRECTORY):
+    os.mkdir(RESULTS_DIRECTORY)
 
 DEVICE = "cuda:0"
 if DEVICE == "cuda:0":
     torch.cuda.set_device(torch.device("cuda:0"))
 
 
-def train(log_interval, model, device, train_loader, optimizer, epoch):
+def train(log_interval, model, train_loader, optimizer, epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
-        data, target = data.to(device), target.to(device)
 
         optimizer.zero_grad()
         output = model(data)
@@ -55,78 +61,54 @@ def train(log_interval, model, device, train_loader, optimizer, epoch):
                        100. * batch_idx / len(train_loader), loss.item()))
 
 
-def test(model, device, test_loader) -> Tuple[float, float]:
+def test(model, test_loader) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     model.eval()
-    test_loss = 0
-    correct = 0
-    preds = []
+
+    predictions = []
+    predictions_proba = []
     targets = []
     with torch.no_grad():
         for data, target in test_loader:
-            data, target = data.to(device), target.to(device)
-            output = model(data)
-            test_loss += F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss
-            pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
-            preds.extend(list(pred.detach().cpu().numpy()))
-            targets.extend(list(target.detach().cpu().numpy()))
+            preds_proba = model(data)
+            predictions_proba.extend(preds_proba)
 
-            correct += pred.eq(target.view_as(pred)).sum().item()
+            preds = preds_proba.argmax(dim=1)
+            predictions.extend(preds)
 
-    print(confusion_matrix(targets, preds))
+            targets.extend(target)
 
-    test_loss /= len(test_loader.dataset)
-    accuracy = 100. * correct / len(test_loader.dataset)
-    print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-        test_loss, correct, len(test_loader.dataset),
-        accuracy)
-    )
-
-    return test_loss, accuracy
-
-
-def split_data_frame(df: pd.DataFrame, iterations: int, test_size: float) -> Tuple[pd.DataFrame, pd.DataFrame]:
-
-    for iteration in range(iterations):
-        test_df = df.sample(frac=test_size, random_state=iteration)
-        train_df = df.drop(test_df.index)
-
-        test_df.reset_index(inplace=True)
-        train_df.reset_index(inplace=True)
-
-        yield train_df, test_df
+    return torch.stack(predictions_proba), torch.stack(predictions),  torch.stack(targets)
 
 
 def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List[Result]:
-    df = experiment.train_test_data_frame()
+
+    pipeline = Pipeline(experiment.pipeline_stages(), debug=debug_pipeline)
+
+    dfs = experiment.train_test_data_frames()
+    directories = experiment.train_test_directories()
+
+    dataset = TorchConcatDataset(
+        [APTOSDataset(df, directory, pipeline) for df, directory in zip(dfs, directories)]
+    )
+    if DEVELOP_MODE:
+        dataset, _ = random_split(dataset, [DEVELOP_MODE_SAMPLES, len(dataset) - DEVELOP_MODE_SAMPLES])
 
     results = []
-    for cv_iteration, (train_df, test_df) in enumerate(split_data_frame(
-            df, CROSS_VALIDATION_ITERATIONS, experiment.test_size()
-    )):
+    for cv_iteration in range(1,  CROSS_VALIDATION_ITERATIONS + 1):
         LOGGER.info("Cross validation iteration: %s", cv_iteration)
 
-        if DEVELOP_MODE:
-            train_df = train_df.sample(frac=DEVELOP_MODE_PERCENT / 100).reset_index()
-            test_df = test_df.sample(frac=DEVELOP_MODE_PERCENT / 100).reset_index()
-
-        pipeline = Pipeline(experiment.pipeline_stages(), debug=debug_pipeline)
-
-        train_ds = APTOS2019Dataset(
-            train_df,
-            experiment.train_test_directory(),
-            pipeline
+        test_size = experiment.test_size()
+        train_ds, test_ds = random_split(
+            dataset,
+            [round((1 - test_size) * len(dataset)), round(test_size * len(dataset))]
         )
+
         train_loader = TorchDataLoader(
             train_ds,
             batch_size=experiment.batch_size(),
             num_workers=DATA_LOADER_WORKERS,
         )
 
-        test_ds = APTOS2019Dataset(
-            test_df,
-            experiment.train_test_directory(),
-            pipeline
-        )
         test_loader = TorchDataLoader(
             test_ds,
             batch_size=experiment.batch_size(),
@@ -134,8 +116,6 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
         )
 
         model = experiment.model(input_shape=train_ds[0][0].shape)
-        if DEVICE == "cuda:0":
-            model.cuda()
 
         optimizer_class, optim_kwargs = experiment.optimizer()
         optimizer = optimizer_class(model.parameters(), **optim_kwargs)
@@ -144,34 +124,35 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
         for epoch in range(1, experiment.max_epochs() + 1):
             LOGGER.info("Epoch: %s", epoch)
 
-            train(1, model, DEVICE, train_loader, optimizer, epoch)
-            loss, accuracy = test(model, DEVICE, test_loader)
+            train(1, model, train_loader, optimizer, epoch)
+            predictions_proba, predictions,  targets = test(model, test_loader)
 
-            metric_df = metric_df.append({
-                "experiment_id": experiment.id(),
-                "cross_validation_iteration": cv_iteration,
-                "epoch": epoch,
-                "test_loss": loss,
-                "test_accuracy": accuracy
-            }, ignore_index=True)
+        predictions = predictions.tolist()
+        targets = targets.tolist()
 
-        results.append(Result(experiment, metric_df))
+        results_df = pd.DataFrame({
+            "experiment_id": [experiment.id() for _ in range(len(targets))],
+            "cross_validation_iteration": [cv_iteration for _ in range(len(targets))],
+            "targets": targets,
+            "predictions": predictions,
+        })
+
+        results.append(Result(experiment, metric_df, results_df))
 
     return results
 
 
 def main():
     experiment_generator = HandTunedExperiements()
-
-    results = []
+    
     for experiment in experiment_generator:
-
+        # Every time an experiment is completed, persist the cross validation results
         results = run_experiment(experiment)
+        for result in results:
 
-    # TODO Send results to db
-    import pickle
-    with open("test.p", "wb") as f:
-        pickle.dump(results, f)
+            if not DEVELOP_MODE:
+                with sqlite3.connect(os.path.join(RESULTS_DIRECTORY, "db.db")) as conn:
+                    result.persist(RESULTS_DIRECTORY, conn)
 
 
 if __name__ == "__main__":
