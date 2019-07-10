@@ -20,6 +20,7 @@ from src.data.dataset import APTOSDataset
 from src.optimization.hand_tuned import HandTunedExperiments
 from src.optimization.experiment import Experiment
 from src.optimization.result import Result
+from src.optimization.monitoring import APTOSMonitor
 
 
 LOGGER = logging.getLogger(__name__)
@@ -46,7 +47,7 @@ if DEVICE == "cuda:0":
 
 def train(log_interval, model, train_loader, optimizer, epoch):
     model.train()
-    for batch_idx, (data, target) in enumerate(train_loader):
+    for batch_idx, (data, target, _) in enumerate(train_loader):
 
         optimizer.zero_grad()
         output = model(data)
@@ -62,23 +63,24 @@ def train(log_interval, model, train_loader, optimizer, epoch):
                        100. * batch_idx / len(train_loader), loss.item()))
 
 
-def test(model, test_loader) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+def test(model: torch.nn.Module, test_loader: TorchDataLoader) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, List[str]]:
     model.eval()
 
     predictions = []
     predictions_proba = []
     targets = []
+    ids = []
     with torch.no_grad():
-        for data, target in test_loader:
+        for data, target, id in test_loader:
             preds_proba = model(data)
-            predictions_proba.extend(preds_proba)
-
             preds = preds_proba.argmax(dim=1)
+
+            predictions_proba.extend(preds_proba)
             predictions.extend(preds)
-
             targets.extend(target)
+            ids.extend(id)
 
-    return torch.stack(predictions_proba), torch.stack(predictions),  torch.stack(targets)
+    return torch.stack(predictions_proba), torch.stack(predictions),  torch.stack(targets), ids
 
 
 def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List[Result]:
@@ -97,36 +99,40 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
     results = []
     for cv_iteration in range(1,  CROSS_VALIDATION_ITERATIONS + 1):
         LOGGER.info("Cross validation iteration: %s", cv_iteration)
+        with APTOSMonitor(experiment, cv_iteration) as monitor:
 
-        test_size = experiment.test_size()
-        train_ds, test_ds = random_split(
-            dataset,
-            [round((1 - test_size) * len(dataset)), round(test_size * len(dataset))]
-        )
+            test_size = experiment.test_size()
+            train_ds, test_ds = random_split(
+                dataset,
+                [round((1 - test_size) * len(dataset)), round(test_size * len(dataset))]
+            )
 
-        train_loader = TorchDataLoader(
-            train_ds,
-            batch_size=experiment.batch_size(),
-            num_workers=DATA_LOADER_WORKERS,
-        )
+            train_loader = TorchDataLoader(
+                train_ds,
+                batch_size=experiment.batch_size(),
+                num_workers=DATA_LOADER_WORKERS,
+            )
 
-        test_loader = TorchDataLoader(
-            test_ds,
-            batch_size=experiment.batch_size(),
-            num_workers=DATA_LOADER_WORKERS,
-        )
+            test_loader = TorchDataLoader(
+                test_ds,
+                batch_size=experiment.batch_size(),
+                num_workers=DATA_LOADER_WORKERS,
+            )
 
-        model = experiment.model(input_shape=train_ds[0][0].shape)
+            model = experiment.model(input_shape=train_ds[0][0].shape)
 
-        optimizer_class, optim_kwargs = experiment.optimizer()
-        optimizer = optimizer_class(model.parameters(), **optim_kwargs)
+            optimizer_class, optim_kwargs = experiment.optimizer()
+            optimizer = optimizer_class(model.parameters(), **optim_kwargs)
 
-        metric_df = pd.DataFrame(columns=["experiment_id", "epoch", "test_loss", "test_accuracy"])
-        for epoch in range(1, experiment.max_epochs() + 1):
-            LOGGER.info("Epoch: %s", epoch)
+            metric_df = pd.DataFrame(columns=["experiment_id", "epoch", "test_loss", "test_accuracy"])
+            for epoch in range(1, experiment.max_epochs() + 1):
+                LOGGER.info("Epoch: %s", epoch)
 
-            train(1, model, train_loader, optimizer, epoch)
-            predictions_proba, predictions,  targets = test(model, test_loader)
+                train(1, model, train_loader, optimizer, epoch)
+                predictions_proba, predictions,  targets, ids = test(model, test_loader)
+
+                if not DEVELOP_MODE:
+                    monitor.process(epoch, predictions_proba, predictions,  targets, ids)
 
         predictions = predictions.tolist()
         targets = targets.tolist()
@@ -136,6 +142,7 @@ def run_experiment(experiment: Experiment, debug_pipeline: bool = False) -> List
             "cross_validation_iteration": [cv_iteration for _ in range(len(targets))],
             "targets": targets,
             "predictions": predictions,
+            "id_code": ids
         })
 
         results.append(Result(experiment, metric_df, results_df))

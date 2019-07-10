@@ -109,8 +109,9 @@ class HandTunedExperiments(ExperimentGenerator):
         self._index = 0
 
     def __next__(self):
+        self._index += 1
         if self._index <= len(self._experiments):
-            return self._experiments[self._index]
+            return self._experiments[self._index - 1]
         else:
             raise StopIteration
 
