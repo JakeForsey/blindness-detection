@@ -86,8 +86,8 @@ def run_experiment(
             for epoch in range(1, experiment.max_epochs() + 1):
                 LOGGER.info("Epoch: %s", epoch)
 
-                train(1, model, train_loader, optimizer, epoch)
-                predictions_proba, predictions,  targets, ids = test(model, test_loader)
+                train(1, model, train_loader, optimizer, epoch, args.device)
+                predictions_proba, predictions,  targets, ids = test(model, test_loader, args.device)
 
                 monitor.process_epoch(epoch, predictions_proba, predictions, targets, ids)
 
@@ -145,9 +145,6 @@ if __name__ == "__main__":
 
     if not os.path.isdir(args.results_directory):
         os.mkdir(args.results_directory)
-
-    if args.device == "cuda:0":
-        torch.cuda.set_device(torch.device("cuda:0"))
 
     main(
         args.develop_mode,
