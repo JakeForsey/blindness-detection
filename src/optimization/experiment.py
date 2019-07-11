@@ -9,9 +9,10 @@ import pandas as pd
 from torch import optim
 
 from src.models.mnist import MnistExampleV01
+from src.models.resnet import resnet18
 from src.preprocess.normalize import crop_dark_borders
-from src.preprocess.normalize import resize
 from src.preprocess.normalize import eight_bit_normalization
+from src.preprocess.normalize import resize
 from src.preprocess.normalize import normalize_left_right
 from src.preprocess.features import bens
 from src.preprocess.features import enhance_fovea
@@ -22,7 +23,8 @@ OPTIMIZERS = {
 }
 
 MODELS = {
-    "MnistExampleV01": MnistExampleV01
+    "MnistExampleV01": MnistExampleV01,
+    "resnet18": resnet18,
 }
 
 STAGES = {

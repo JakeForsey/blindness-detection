@@ -1,3 +1,5 @@
+import itertools
+
 from src.constants import TEST_IMAGE_WIDTH
 from src.constants import TEST_IMAGE_HEIGHT
 from src.optimization.base import ExperimentGenerator
@@ -45,7 +47,7 @@ EXPERIMENTS = [
         max_epochs=35,
     ),
     Experiment(
-        description="MnistExampleV01 with Bens normalization and exudates in macula ehancement",
+        description="Resnet18 with Bens normalization and exudates in macula ehancement",
         pipeline_stages=[
             (
                 "crop_dark_borders",
@@ -92,7 +94,7 @@ EXPERIMENTS = [
         ],
         train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],
-        model=("MnistExampleV01", {}),
+        model=("resnet18", {}),
         batch_size=100,
         optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
@@ -103,9 +105,14 @@ EXPERIMENTS = [
 
 class HandTunedExperiments(ExperimentGenerator):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, experiment_ranges, *args, **kwargs):
+
         super().__init__(*args, **kwargs)
-        self._experiments = EXPERIMENTS
+        self._experiments = [
+            EXPERIMENTS[i]
+            for i in range(len(EXPERIMENTS))
+            if i in set(itertools.chain(*experiment_ranges))
+        ]
         self._index = 0
 
     def __next__(self):

@@ -1,5 +1,33 @@
 import argparse
+import re
+from typing import Iterable
 
+def range_argument(range_str: str) -> Iterable[int]:
+    """
+    Parse a range string in the form x-y into a python range.
+    """
+    pattern = re.compile(r"^(?P<from>\d+)(-(?P<to>\d+))?$")
+
+    match = pattern.match(range_str)
+
+    if not match:
+        raise argparse.ArgumentTypeError(
+            'Required range format <from>-<to>, inclusive.',
+        )
+
+    frm = int(match['from'])
+
+    if match['to'] is None:
+        to = frm
+    else:
+        to = int(match['to'])
+
+    if frm > to:
+        raise argparse.ArgumentTypeError(
+            'Cannot parse range with <from> greater than <to>.',
+        )
+
+    return range(frm, to+1)
 
 def parse_training_arguments():
     arg_parser = argparse.ArgumentParser()
@@ -44,6 +72,13 @@ def parse_training_arguments():
         help="Base directory in which to store results.",
         default="cuda:0",
         choices=["cpu", "cuda:0", "cuda:1"]
+    )
+
+    arg_parser.add_argument(
+        "--experiments",
+        type=range_argument,
+        help="A range of experiment indices to run in the form <from>-<to>, inclusive.",
+        action='append',
     )
 
     return arg_parser.parse_args()
