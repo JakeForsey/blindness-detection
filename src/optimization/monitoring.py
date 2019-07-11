@@ -27,7 +27,7 @@ class APTOSMonitor:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._summary_writer.close()
 
-    def process(self, epoch, predictions_proba: torch.Tensor, predictions,  targets, ids):
+    def process_epoch(self, epoch, predictions_proba: torch.Tensor, predictions, targets, ids):
 
         self._summary_writer.add_scalar(
             tag="accuracy_score",
@@ -53,7 +53,18 @@ class APTOSMonitor:
             global_step=epoch
         )
 
+
+    def process_cv_start(self):
+
         self._summary_writer.add_text(
             tag="description",
             text_string=self._experiment.description()
         )
+
+        self._summary_writer.add_text(
+            tag="pipeline_stages",
+            text_string=" -> ".join([f"{f}({kwargs})" for f, kwargs in self._experiment._pipeline_stages])
+        )
+
+    def process_cv_end(self, predictions_proba: torch.Tensor, predictions, targets, ids):
+        pass

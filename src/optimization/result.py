@@ -19,6 +19,9 @@ class Result:
         return os.path.join(directory, self._experiment.id() + ".json")
 
     def persist(self, directory: str, connection: sqlite3.Connection):
+
+        # TODO persist metrics_df which will contain summary statistics
+
         # Persist the performance metrics
         self._results_df.to_sql(
             "results",
