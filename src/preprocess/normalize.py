@@ -15,6 +15,7 @@ def crop_dark_borders(image: np.ndarray, tol: int) -> np.ndarray:
     mask = mask.any(2)
     return image[np.ix_(mask.any(1), mask.any(0))]
 
+
 def normalize_left_right(image: np.ndarray) -> np.ndarray:
     def close_image(image: np.ndarray, radius: int):
         return cv2.morphologyEx(
