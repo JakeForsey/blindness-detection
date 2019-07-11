@@ -33,7 +33,10 @@ class APTOSDataset(TorchDataset):
         preprocessed_image = self._preprocess_pipeline(image)
         preprocessed_image = self._to_w_h_channels(preprocessed_image)
 
-        diagnosis_class = self._data_frame["diagnosis"][index]
+        try:
+            diagnosis_class = self._data_frame["diagnosis"][index]
+        except KeyError:
+            raise KeyError("Are you using the test (submission) dataset? Try using APTOSSubmissionDataset instead.")
 
         return preprocessed_image.astype(np.float32), np.array(diagnosis_class, dtype=np.int64), id_code
 

@@ -12,6 +12,7 @@ from src.models.mnist import MnistExampleV01
 from src.preprocess.normalize import crop_dark_borders
 from src.preprocess.normalize import resize
 from src.preprocess.normalize import eight_bit_normalization
+from src.preprocess.normalize import normalize_left_right
 from src.preprocess.features import bens
 from src.preprocess.features import enhance_fovea
 
@@ -29,7 +30,8 @@ STAGES = {
     "resize": resize,
     "enhance_fovea": enhance_fovea,
     "bens": bens,
-    "eight_bit_normalization": eight_bit_normalization
+    "eight_bit_normalization": eight_bit_normalization,
+    "normalize_left_right": normalize_left_right
 }
 
 
@@ -66,6 +68,7 @@ class Experiment:
         return self._id
 
     def pipeline_stages(self):
+        # Can't use Pipleine.initialise_stages() as it causes a circular import...
         return [(STAGES[stage], kwargs) for stage, kwargs in self._pipeline_stages]
 
     def train_test_directories(self) -> List[str]:
