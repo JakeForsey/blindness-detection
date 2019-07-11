@@ -49,9 +49,10 @@ def normalize_left_right(image: np.ndarray) -> np.ndarray:
         (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(red)
         return red, maxLoc
 
+    image_copy = image.copy()
     # Rescale to a size tested for the magic numbers below.
-    image = cv2.resize(image,(512, 512))
-    _, od = find_optic_disk(image, 99, 10, 25)
-    if od[0] > image.shape[1] / 2:
+    image_copy = cv2.resize(image_copy,(512, 512))
+    _, od = find_optic_disk(image_copy, 99, 10, 25)
+    if od[0] > image_copy.shape[1] / 2:
         image = cv2.flip(image, 1)
     return image
