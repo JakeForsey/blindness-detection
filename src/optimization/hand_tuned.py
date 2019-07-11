@@ -36,8 +36,8 @@ EXPERIMENTS = [
                 {}
             )
         ],
-        train_test_data_frames=["/home/jake/Data/aptos2019-blindness-detection/train.csv"],
-        train_test_directories=["/home/jake/Data/aptos2019-blindness-detection/train_images"],
+        train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
+        train_test_directories=["data/aptos2019-blindness-detection/train_images"],
         model=("MnistExampleV01", {}),
         batch_size=100,
         optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
