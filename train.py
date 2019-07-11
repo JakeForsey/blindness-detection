@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Searches models and hyper parameters.
 """
@@ -54,6 +55,8 @@ def run_experiment(
         LOGGER.info("Cross validation iteration: %s", cv_iteration)
 
         with APTOSMonitor(experiment, cv_iteration) as monitor:
+            LOGGER.info(f'tensorboard --logdir "{monitor._summary_writer.log_dir}"')
+
             monitor.process_cv_start()
 
             test_size = experiment.test_size()
@@ -111,13 +114,14 @@ def main(
         data_loader_workers,
         cross_validation_iterations,
         results_directory,
-        device
+        device,
+        experiments,
 ):
 
     # TODO Make this experiment generator dynamic e.g. select ExperimentGenerator
     #  type based on cmd line arguments
-    experiment_generator = HandTunedExperiments()
-    
+    experiment_generator = HandTunedExperiments(experiments)
+
     for experiment in experiment_generator:
         # Every time an experiment is completed, persist the cross validation results
         results = run_experiment(
@@ -150,5 +154,6 @@ if __name__ == "__main__":
         args.data_loader_workers,
         args.cross_validation_iterations,
         args.results_directory,
-        args.device
+        args.device,
+        args.experiments,
     )
