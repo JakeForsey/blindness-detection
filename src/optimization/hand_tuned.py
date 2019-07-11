@@ -108,6 +108,9 @@ class HandTunedExperiments(ExperimentGenerator):
     def __init__(self, experiment_ranges, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
+        if experiment_ranges is None:
+            experiment_ranges = [range(len(EXPERIMENTS))]
+
         self._experiments = [
             EXPERIMENTS[i]
             for i in range(len(EXPERIMENTS))
