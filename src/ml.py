@@ -12,8 +12,9 @@ def train(log_interval, model, train_loader, optimizer, epoch):
 
         optimizer.zero_grad()
         output = model(data)
+        activation = F.log_softmax(output, dim=1)
 
-        loss = F.nll_loss(output, target)
+        loss = F.nll_loss(activation, target)
         loss.backward()
 
         optimizer.step()
@@ -33,7 +34,9 @@ def test(model: torch.nn.Module, test_loader: TorchDataLoader) -> Tuple[torch.Te
     ids = []
     with torch.no_grad():
         for data, target, id_code in test_loader:
-            preds_proba = model(data)
+            output = model(data)
+            preds_proba = F.log_softmax(output, dim=1)
+
             preds = preds_proba.argmax(dim=1)
 
             predictions_proba.extend(preds_proba)
