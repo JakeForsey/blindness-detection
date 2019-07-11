@@ -94,7 +94,7 @@ EXPERIMENTS = [
         ],
         train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],
-        model=("resnet18", {}),
+        model=("resnet18", {"num_classes": 5}),
         batch_size=100,
         optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
