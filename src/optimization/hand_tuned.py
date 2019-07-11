@@ -6,7 +6,7 @@ from src.optimization.experiment import Experiment
 
 EXPERIMENTS = [
     Experiment(
-        description="Simple mnist cnn",
+        description="MnistExampleV01 with Bens normalization",
         pipeline_stages=[
             (
                 "crop_dark_borders",
@@ -42,9 +42,10 @@ EXPERIMENTS = [
         batch_size=100,
         optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
-        max_epochs=3
+        max_epochs=35
     ),
     Experiment(
+        description="MnistExampleV01 with Bens normalization and exudates in macula ehancement",
         pipeline_stages=[
             (
                 "crop_dark_borders",
@@ -85,14 +86,13 @@ EXPERIMENTS = [
                 {}
             )
         ],
-        description="Development",
         train_test_data_frames=["/home/jake/Data/aptos2019-blindness-detection/train.csv"],
         train_test_directories=["/home/jake/Data/aptos2019-blindness-detection/train_images"],
         model=("MnistExampleV01", {}),
         batch_size=100,
         optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
-        max_epochs=3
+        max_epochs=35
     ),
 ]
 
