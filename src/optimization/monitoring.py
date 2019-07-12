@@ -37,7 +37,11 @@ class APTOSMonitor:
 
         self._summary_writer.add_scalar(
             tag="cohen_kappa_score",
-            scalar_value=cohen_kappa_score(targets, predictions),
+            scalar_value=cohen_kappa_score(
+                targets,
+                predictions,
+                weights='quadratic',
+            ),
             global_step=epoch
         )
 
