@@ -16,6 +16,7 @@ from torch.utils.data import random_split
 from src.argument_parser import parse_training_arguments
 from src.preprocess.pipeline import Pipeline
 from src.data.dataset import APTOSDataset
+from src.data.sampling import ImbalancedAPTOSDatasetSampler
 from src.optimization.hand_tuned import HandTunedExperiments
 from src.optimization.experiment import Experiment
 from src.optimization.result import Result
@@ -65,10 +66,18 @@ def run_experiment(
                 [round((1 - test_size) * len(dataset)), round(test_size * len(dataset))]
             )
 
+            if experiment.over_sample():
+                sampler = ImbalancedAPTOSDatasetSampler(
+                    train_ds,
+                )
+            else:
+                sampler = None
+
             train_loader = TorchDataLoader(
                 train_ds,
                 batch_size=experiment.batch_size(),
                 num_workers=data_loader_workers,
+                sampler=sampler
             )
 
             test_loader = TorchDataLoader(

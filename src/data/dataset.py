@@ -26,7 +26,17 @@ class APTOSDataset(TorchDataset):
         return image.transpose(2, 0, 1)
 
     @lru_cache(4000)
-    def __getitem__(self, index: int):
+    def __getitem__(self, index: int, diagnosis_only: bool = False):
+        """
+        Get the preprocessed image, diagnosis and id at `index` in the dataset.
+
+        :param index: index of the record to fetch
+        :param diagnosis_only: bool, if True only fetch the diagnosis (to avoid processing image)
+        :return: Tuple[np.ndarray, np.ndarray, str], preprocessed image, diagnosis, record id
+        """
+        if diagnosis_only:
+            return self._data_frame["diagnosis"][index]
+
         id_code = self._data_frame["id_code"][index]
 
         image = self._load_image(id_code)

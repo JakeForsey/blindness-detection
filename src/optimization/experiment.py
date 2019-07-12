@@ -49,6 +49,7 @@ class Experiment:
             optimzier: Tuple[str, dict],
             test_size: float,
             max_epochs: int,
+            over_sample: bool,
             description: Optional[str] = None,
 
     ):
@@ -61,6 +62,7 @@ class Experiment:
         self._optimzier_string, self._optimizer_kwargs = optimzier
         self._max_epochs = max_epochs
         self._test_size = test_size
+        self._over_sample = over_sample
 
         if description is None:
             description = time.time()
@@ -96,6 +98,9 @@ class Experiment:
 
     def description(self):
         return self._description
+
+    def over_sample(self):
+        return self._over_sample
 
     def from_json(self, json_string):
         raise NotImplemented()
