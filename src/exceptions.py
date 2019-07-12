@@ -1,0 +1,4 @@
+
+
+class IncompatibleExperimentConfiguration(Exception):
+    pass
