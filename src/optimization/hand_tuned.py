@@ -123,10 +123,12 @@ EXPERIMENTS = [
         ],
         train_test_data_frames=[
             "data/aptos2019-blindness-detection/train.csv",
+            # To use this dataset, the column names need to be converted to "id_code" and "diagnosis"
             "/media/jake/ssd/aptos2015-blindness-detection/trainLabels.csv"
         ],
         train_test_directories=[
             "data/aptos2019-blindness-detection/train_images",
+            # To use this dataset, the column names need to be converted to "id_code" and "diagnosis"
             "/media/jake/ssd/aptos2015-blindness-detection/train"
         ],
         model=("resnet18", {"num_classes": 5}),
