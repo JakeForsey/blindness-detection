@@ -9,6 +9,8 @@ from src.optimization.experiment import Experiment
 EXPERIMENTS = [
     Experiment(
         description="MnistExampleV01 with Bens normalization",
+        # Standardize differences and hand engineer features to reduce the required complexity
+        # to model the problem
         pipeline_stages=[
             (
                 "crop_dark_borders",
@@ -38,6 +40,9 @@ EXPERIMENTS = [
                 {}
             )
         ],
+        # Introduce slight variations into training cycle in an attempt to increase
+        # data set size
+        augmentation_stages=[],
         train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],
         model=("MnistExampleV01", {}),
@@ -92,11 +97,20 @@ EXPERIMENTS = [
                 {}
             )
         ],
+        # Introduce slight variations into training cycle in an attempt to increase
+        # data set size
+        augmentation_stages=[
+            ("rotate", {"limit": 10, "p": 0.1}),
+            ("grid_distort", {"p": 0.1}),
+            ("brightness", {"p": 0.1}),
+            ("contrast", {"p": 0.1}),
+            ("rgb_shift", {"p": 0.1})
+        ],
         train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],
         model=("resnet18", {"num_classes": 5}),
         batch_size=100,
-        optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
+        optimzier=("SGD", {"lr": 0.0001, "momentum": 0.9}),
         test_size=0.2,
         max_epochs=35,
     ),

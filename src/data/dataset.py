@@ -31,7 +31,7 @@ class APTOSDataset(TorchDataset):
 
         image = self._load_image(id_code)
         preprocessed_image = self._preprocess_pipeline(image)
-        preprocessed_image = self._to_w_h_channels(preprocessed_image)
+        # preprocessed_image = self._to_w_h_channels(preprocessed_image)
 
         try:
             diagnosis_class = self._data_frame["diagnosis"][index]
@@ -54,6 +54,6 @@ class APTOSSubmissionDataset(APTOSDataset):
         image = self._load_image(id_code)
         preprocessed_image = self._preprocess_pipeline(image)
 
-        preprocessed_image = self._to_w_h_channels(preprocessed_image)
+        # preprocessed_image = self._to_w_h_channels(preprocessed_image)
 
         return preprocessed_image.astype(np.float32)

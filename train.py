@@ -15,6 +15,7 @@ from torch.utils.data import random_split
 
 from src.argument_parser import parse_training_arguments
 from src.preprocess.pipeline import Pipeline
+from src.preprocess.augmentation import AugmentedCollate
 from src.data.dataset import APTOSDataset
 from src.optimization.hand_tuned import HandTunedExperiments
 from src.optimization.experiment import Experiment
@@ -39,6 +40,7 @@ def run_experiment(
     LOGGER.info("Beginning experiment: %s, %s", experiment.id(), experiment.description())
 
     pipeline = Pipeline(experiment.pipeline_stages(), debug=debug_pipeline)
+    augmentations = AugmentedCollate(experiment.augmentation_stages())
 
     dfs = experiment.train_test_data_frames()
     directories = experiment.train_test_directories()
@@ -69,6 +71,9 @@ def run_experiment(
                 train_ds,
                 batch_size=experiment.batch_size(),
                 num_workers=data_loader_workers,
+                # Potentially an unconventional use of collate_fn, but it does make the
+                # train data loader responsible for augmentations which is nice.
+                collate_fn=augmentations
             )
 
             test_loader = TorchDataLoader(

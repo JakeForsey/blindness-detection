@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader as TorchDataLoader
 
 
-def train(log_interval, model, train_loader, optimizer, epoch):
+def train(log_interval, model, train_loader, optimizer, epoch: int):
     model.train()
     for batch_idx, (data, target, _) in enumerate(train_loader):
 

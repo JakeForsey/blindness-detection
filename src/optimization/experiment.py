@@ -5,6 +5,7 @@ from typing import List
 from typing import Optional
 from uuid import uuid4
 
+import albumentations
 import pandas as pd
 from torch import optim
 
@@ -27,7 +28,7 @@ MODELS = {
     "resnet18": resnet18,
 }
 
-STAGES = {
+PIPELINE_STAGES = {
     "crop_dark_borders": crop_dark_borders,
     "resize": resize,
     "enhance_fovea": enhance_fovea,
@@ -36,12 +37,22 @@ STAGES = {
     "normalize_left_right": normalize_left_right
 }
 
+AUGMENTATION_STAGES = {
+    "none": albumentations.NoOp,
+    "rotate": albumentations.Rotate,
+    "grid_distort": albumentations.GridDistortion,
+    "brightness": albumentations.RandomBrightness,
+    "contrast": albumentations.RandomContrast,
+    "rgb_shift": albumentations.RGBShift
+}
+
 
 class Experiment:
 
     def __init__(
             self,
             pipeline_stages: List[Tuple[str, dict]],
+            augmentation_stages: List[Tuple[str, dict]],
             train_test_directories: List[str],
             train_test_data_frames: List[str],
             model: Tuple[str, dict],
@@ -54,6 +65,8 @@ class Experiment:
     ):
         self._id = str(uuid4())
         self._pipeline_stages = pipeline_stages
+        # TODO look at albumentations.core.serialization.to_dict and albumentations.core.serialization.from_dict
+        self._augmentation_stages = augmentation_stages
         self._train_test_directories = train_test_directories
         self._train_test_data_frames = train_test_data_frames
         self._model_string, self._model_kwargs = model
@@ -71,7 +84,10 @@ class Experiment:
 
     def pipeline_stages(self):
         # Can't use Pipleine.initialise_stages() as it causes a circular import...
-        return [(STAGES[stage], kwargs) for stage, kwargs in self._pipeline_stages]
+        return [(PIPELINE_STAGES[stage], kwargs) for stage, kwargs in self._pipeline_stages]
+
+    def augmentation_stages(self):
+        return [(AUGMENTATION_STAGES[aug_stage], kwargs) for aug_stage, kwargs in self._augmentation_stages]
 
     def train_test_directories(self) -> List[str]:
         return self._train_test_directories

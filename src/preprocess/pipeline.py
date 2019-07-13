@@ -3,7 +3,7 @@ from typing import Callable
 from typing import Union
 from typing import List
 
-from src.optimization.experiment import STAGES
+from src.optimization.experiment import PIPELINE_STAGES
 
 import matplotlib.pyplot as plt
 
@@ -50,4 +50,4 @@ class Pipeline:
 
     @staticmethod
     def initialise_stages(stages: List[Tuple[str, dict]]) -> List[Tuple[Callable, dict]]:
-        return [(STAGES[stage], kwargs) for stage, kwargs in stages]
+        return [(PIPELINE_STAGES[stage], kwargs) for stage, kwargs in stages]
