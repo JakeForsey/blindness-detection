@@ -100,11 +100,9 @@ EXPERIMENTS = [
         # Introduce slight variations into training cycle in an attempt to increase
         # data set size
         augmentation_stages=[
-            ("rotate", {"limit": 10, "p": 0.1}),
-            ("grid_distort", {"p": 0.1}),
-            ("brightness", {"p": 0.1}),
-            ("contrast", {"p": 0.1}),
-            ("rgb_shift", {"p": 0.1})
+            ("rotate", {"limit": 10, "p": 0.2}),
+            ("grid_distort", {"p": 0.2}),
+            ("brightness_contrast", {"p": 0.2, "contrast_limit": 0.3, "brightness_limit": 0.3}),
         ],
         train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],

@@ -38,12 +38,12 @@ PIPELINE_STAGES = {
 }
 
 AUGMENTATION_STAGES = {
+    # Not all albumentations augmentation transforms work for some reason so only add
+    # after checking they work
     "none": albumentations.NoOp,
     "rotate": albumentations.Rotate,
     "grid_distort": albumentations.GridDistortion,
-    "brightness": albumentations.RandomBrightness,
-    "contrast": albumentations.RandomContrast,
-    "rgb_shift": albumentations.RGBShift
+    "brightness_contrast": albumentations.RandomBrightnessContrast,
 }
 
 

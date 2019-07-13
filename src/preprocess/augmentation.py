@@ -4,7 +4,6 @@ from typing import Callable
 from typing import Union
 
 from albumentations import Compose as AlbumentationsCompose
-import torch
 from torch.utils.data._utils.collate import default_collate
 
 from src.optimization.experiment import AUGMENTATION_STAGES
@@ -59,21 +58,10 @@ class AugmentedCollate:
         :param data: data to augment and compile into a batch
         :return: None
         """
-
+        # TODO Handle the case when the input dataset is the submission data set (AKA no diagnoses)
         images, diagnoses, ids = zip(*data)
 
-        augmented_images = torch.stack(
-            # albumentations convention is that augmentation transforms are called with data stored in a
-            # dictionary with one or more of the following keys:
-            #   "image"
-            #   "mask" (for segmentation)
-            #   "bbox" (for object detection)
-            #   "keypoints" (for feature matching?)
-            # the return value of a transform is a dictionary with the same keys (the values of which
-            # have been augmented
-            [torch.from_numpy(self._augmentations(force_apply=False, image=image)["image"]) for image in images]
-            , 0
-        )
+        augmented_images = [self._augmentations(force_apply=False, image=image)["image"] for image in images]
 
         # Use the default_collate after augmentation
         return default_collate(
