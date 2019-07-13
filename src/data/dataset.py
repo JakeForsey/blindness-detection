@@ -18,7 +18,13 @@ class APTOSDataset(TorchDataset):
         self._classes = 5
 
     def _load_image(self, id_code):
-        image = cv2.imread(os.path.join(self._data_directory, id_code + ".png"))
+        # aptos 2015 dataset used .jpeg, aptos 2019 used .png
+        for file_extension in [".png", ".jpeg"]:
+            file_path = os.path.join(self._data_directory, id_code + file_extension)
+            if os.path.exists(file_path):
+                break
+
+        image = cv2.imread(file_path)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return image
 
