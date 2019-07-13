@@ -6,11 +6,9 @@ import numpy as np
 import pandas as pd
 from torch.utils.data import Dataset as TorchDataset
 
-from src.preprocess.pipeline import Pipeline
-
 
 class APTOSDataset(TorchDataset):
-    def __init__(self, data_frame: pd.DataFrame, data_directory: str, preprocess_pipeline: Pipeline):
+    def __init__(self, data_frame: pd.DataFrame, data_directory: str, preprocess_pipeline):
         super().__init__()
         self._data_frame = data_frame
         self._data_directory = data_directory

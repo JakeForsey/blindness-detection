@@ -7,6 +7,8 @@ from uuid import uuid4
 
 import pandas as pd
 from torch import optim
+from torch.utils.data.sampler import RandomSampler
+
 
 from src.models.mnist import MnistExampleV01
 from src.models.resnet import resnet18
@@ -16,7 +18,12 @@ from src.preprocess.normalize import resize
 from src.preprocess.normalize import normalize_left_right
 from src.preprocess.features import bens
 from src.preprocess.features import enhance_fovea
+from src.data.sampling import ImbalancedAPTOSDatasetSampler
 
+SAMPLERS = {
+    "ImbalancedAPTOSDatasetSampler": ImbalancedAPTOSDatasetSampler,
+    "RandomSampler": RandomSampler
+}
 
 OPTIMIZERS = {
     "SGD": optim.SGD,
@@ -49,7 +56,7 @@ class Experiment:
             optimzier: Tuple[str, dict],
             test_size: float,
             max_epochs: int,
-            over_sample: bool,
+            sampler: Tuple[str, dict],
             description: Optional[str] = None,
 
     ):
@@ -62,7 +69,7 @@ class Experiment:
         self._optimzier_string, self._optimizer_kwargs = optimzier
         self._max_epochs = max_epochs
         self._test_size = test_size
-        self._over_sample = over_sample
+        self._sampler_string, self._sampler_kwargs = sampler
 
         if description is None:
             description = time.time()
@@ -99,8 +106,8 @@ class Experiment:
     def description(self):
         return self._description
 
-    def over_sample(self):
-        return self._over_sample
+    def sampler(self):
+        return SAMPLERS[self._sampler_string], self._sampler_kwargs
 
     def from_json(self, json_string):
         raise NotImplemented()
@@ -119,4 +126,6 @@ class Experiment:
             "optimizer_kwargs": self._optimizer_kwargs,
             "max_epochs": self._max_epochs,
             "test_size": self._test_size,
+            "sampler": self._sampler_string,
+            "sampler_kwargs": self._sampler_kwargs
         })

@@ -45,7 +45,7 @@ EXPERIMENTS = [
         optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
         max_epochs=35,
-        over_sample=True
+        sampler=("RandomSampler", {})
     ),
     Experiment(
         description="Resnet18 with Bens normalization and exudates in macula ehancement and over sampling",
@@ -100,7 +100,7 @@ EXPERIMENTS = [
         optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
         max_epochs=35,
-        over_sample=True
+        sampler=("ImbalancedAPTOSDatasetSampler", {})
     ),
 ]
 
