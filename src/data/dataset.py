@@ -54,8 +54,8 @@ class APTOSDataset(TorchDataset):
 
         return preprocessed_image.astype(np.float32), np.array(diagnosis_class, dtype=np.int64), id_code
 
-    def __getitem__(self, index: int):
-        return self._cached_getitem(index)
+    def __getitem__(self, index: int, diagnosis_only: bool = False):
+        return self._cached_getitem(index, diagnosis_only)
 
     def __len__(self):
         return len(self._data_frame)
