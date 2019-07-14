@@ -67,13 +67,17 @@ def run_experiment(
                 [round((1 - test_size) * len(dataset)), round(test_size * len(dataset))]
             )
 
+            sampler, sampler_kwargs = experiment.sampler()
+            sampler = sampler(train_ds, **sampler_kwargs)
+
             train_loader = TorchDataLoader(
                 train_ds,
                 batch_size=experiment.batch_size(),
                 num_workers=data_loader_workers,
                 # Potentially an unconventional use of collate_fn, but it does make the
                 # train data loader responsible for augmentations which is nice.
-                collate_fn=augmentations
+                collate_fn=augmentations,
+                sampler=sampler
             )
 
             test_loader = TorchDataLoader(

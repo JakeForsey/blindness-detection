@@ -47,12 +47,13 @@ EXPERIMENTS = [
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],
         model=("MnistExampleV01", {}),
         batch_size=100,
-        optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
+        optimizer=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
         max_epochs=35,
+        sampler=("RandomSampler", {})
     ),
     Experiment(
-        description="Pretrained Resnet18 with Bens normalization and exudates in macula ehancement",
+        description="Pretrained Resnet18 with Bens normalization and exudates in macula ehancement and over sampling",
         pipeline_stages=[
             (
                 "crop_dark_borders",
@@ -90,9 +91,11 @@ EXPERIMENTS = [
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],
         model=("resnet18", {"num_classes": 5, "pretrained": True}),
         batch_size=100,
-        optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
+        optimizer=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
         max_epochs=35,
+        sampler=("RandomSampler", {})
+
     ),
     Experiment(
         description="Not pretrained Resnet18 with Bens normalization",
@@ -140,9 +143,10 @@ EXPERIMENTS = [
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],
         model=("resnet18", {"num_classes": 5, "pretrained": False}),
         batch_size=100,
-        optimzier=("SGD", {"lr": 0.0001, "momentum": 0.9}),
+        optimizer=("SGD", {"lr": 0.0001, "momentum": 0.9}),
         test_size=0.2,
         max_epochs=35,
+        sampler=("ImbalancedAPTOSDatasetSampler", {})
     ),
 ]
 
