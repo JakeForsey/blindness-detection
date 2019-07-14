@@ -86,8 +86,8 @@ def run_experiment(
             for epoch in range(1, experiment.max_epochs() + 1):
                 LOGGER.info("Epoch: %s", epoch)
 
-                train(1, model, train_loader, optimizer, epoch, args.device)
-                predictions_proba, predictions,  targets, ids = test(model, test_loader, args.device)
+                train(1, model, train_loader, optimizer, epoch, device)
+                predictions_proba, predictions,  targets, ids = test(model, test_loader, device)
 
                 monitor.process_epoch(epoch, predictions_proba, predictions, targets, ids)
 
