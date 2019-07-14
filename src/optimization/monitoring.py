@@ -8,6 +8,7 @@ from sklearn.metrics import cohen_kappa_score
 
 
 from src.optimization.experiment import Experiment
+from src.visualisations import plot_confusion_matrix
 
 
 class APTOSMonitor:
@@ -57,6 +58,14 @@ class APTOSMonitor:
             global_step=epoch
         )
 
+        confusion_matrix_array = plot_confusion_matrix(targets, predictions, as_array=True)
+
+        self._summary_writer.add_image(
+            tag="confusion_matrix",
+            img_tensor=torch.from_numpy(confusion_matrix_array),
+            global_step=epoch,
+            dataformats="HWC"
+        )
 
     def process_cv_start(self):
 
