@@ -6,6 +6,15 @@ https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py
 
 """
 import torch.nn as nn
+from torch.utils.model_zoo import load_url
+
+from src.exceptions import IncompatibleExperimentConfiguration
+
+
+MODEL_URLS = {
+    'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
+}
+
 
 def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
     """3x3 convolution with padding"""
@@ -57,6 +66,7 @@ class BasicBlock(nn.Module):
 
         return out
 
+
 class Bottleneck(nn.Module):
     expansion = 4
 
@@ -98,6 +108,7 @@ class Bottleneck(nn.Module):
         out = self.relu(out)
 
         return out
+
 
 class ResNet(nn.Module):
 
@@ -199,23 +210,41 @@ class ResNet(nn.Module):
         return x
 
 
-def _resnet(arch, block, layers, progress, shape=None, **kwargs):
-    return ResNet(block, layers, shape=shape, **kwargs)
+def _resnet(arch, block, layers, progress, num_classes, pretrained=False, shape=None, **kwargs):
+    model = ResNet(block, layers, shape=shape, **kwargs)
+
+    if pretrained:
+        state_dict = load_url(MODEL_URLS[arch], progress=progress)
+        model.load_state_dict(state_dict)
+
+        # modify the fully connected layer to accommodate the number of classes in this
+        # classification problem
+        num_ftrs = model.fc.in_features
+        model.fc = nn.Linear(num_ftrs, num_classes)
+
+    return ResNet(block, layers, shape=shape)
 
 
-def resnet18(shape=None, progress=True, **kwargs):
+def resnet18(num_classes, shape, pretrained, progress=True, **kwargs):
     r"""ResNet-18 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>'_
 
     Args:
-        shape: input shape
+        shape (tuple): input shape
         progress (bool): If True, displays a progress bar of the download to stderr
+        num_classes (int): number of classes to classify
     """
+    if pretrained and shape[0] != 3:
+        raise IncompatibleExperimentConfiguration(
+            "Pretrained resnet18 can only be used if the input image has 3 channels"
+        )
+
     return _resnet(
         'resnet18',
         BasicBlock,
         [2, 2, 2, 2],
         progress,
         shape=shape,
+        num_classes=num_classes,
         **kwargs,
     )
