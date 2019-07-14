@@ -48,7 +48,7 @@ EXPERIMENTS = [
         sampler=("RandomSampler", {})
     ),
     Experiment(
-        description="Pretrained Resnet18 with Bens normalization and exudates in macula ehancement",
+        description="Pretrained Resnet18 with Bens normalization and exudates in macula ehancement and over sampling",
         pipeline_stages=[
             (
                 "crop_dark_borders",
@@ -92,7 +92,7 @@ EXPERIMENTS = [
         sampler=("RandomSampler", {})
     ),
     Experiment(
-        description="Not pretrained Resnet18 with Bens normalization abd over sampling",
+        description="Not pretrained Resnet18 with Bens normalization",
         pipeline_stages=[
             (
                 "crop_dark_borders",

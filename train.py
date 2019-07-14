@@ -46,7 +46,7 @@ def run_experiment(
 
     # File system cache with a 1 to 1 mapping to an experiment, used to cache data for multiple workers,
     # can safely be used in each cross validation run
-    cache = joblib.Memory(f'/media/jake/ssd/cachedir/{experiment.id()}', verbose=0)
+    cache = joblib.Memory(f'./cachedir/{experiment.id()}', verbose=0)
     LOGGER.info("Initialised cache: %s", cache)
 
     LOGGER.info("Creating APTOSDataset for the following directories: %s", directories)
