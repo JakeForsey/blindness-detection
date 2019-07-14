@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-import bisect
 import torch
 import torch.utils.data
 from torch.utils.data import Sampler as TorchSampler
@@ -11,7 +10,7 @@ from torch.utils.data import Subset as TorchSubset
 from src.data.dataset import APTOSDataset
 
 
-class ImbalancedDatasetSampler(TorchSampler, ABC):
+class BaseImbalancedDatasetSampler(TorchSampler, ABC):
     """Samples elements randomly from a given list of indices for imbalanced dataset
 
     Modified from:
@@ -61,7 +60,7 @@ class ImbalancedDatasetSampler(TorchSampler, ABC):
         return self.num_samples
 
 
-class ImbalancedAPTOSDatasetSampler(ImbalancedDatasetSampler):
+class ImbalancedAPTOSDatasetSampler(BaseImbalancedDatasetSampler):
     """
     Implementation of ImabalancedDatasetSampler that can be used on a torch.utils.data.Subset
     of a torch.utils.data.ConcatDataset of one or more APTOSDataset.
@@ -71,26 +70,21 @@ class ImbalancedAPTOSDatasetSampler(ImbalancedDatasetSampler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def _get_label(self, dataset, idx):
-        # Well, here we are... Custom implementation to fetch a diagnosis from a
-        # torch.utils.data.Subset of a torch.utils.data.ConcatDataset of one or more APTOSDataset
-        # without reading the image.
-        if isinstance(dataset, TorchSubset):
-            idx = dataset.indices[idx]
-            if isinstance(dataset.dataset, TorchConcatDataset):
+    def _set_read_image(self, dataset: TorchDataset, value: bool):
+        if isinstance(dataset, APTOSDataset):
+            dataset.set_read_image(value)
 
-                def concat_dataset_index(concat_dataset: TorchConcatDataset, idx: int):
-                    dataset_idx = bisect.bisect_right(concat_dataset.cumulative_sizes, idx)
-                    if dataset_idx == 0:
-                        sample_idx = idx
-                    else:
-                        sample_idx = idx - concat_dataset.cumulative_sizes[dataset_idx - 1]
-                    return sample_idx, dataset_idx
+        elif isinstance(dataset, TorchConcatDataset):
+            for ds in dataset.datasets:
+                self._set_read_image(ds, value)
 
-                sample_idx, dataset_idx = concat_dataset_index(dataset.dataset, idx)
+        elif isinstance(dataset, TorchSubset):
+            self._set_read_image(dataset.dataset, value)
 
-                if isinstance(dataset.dataset.datasets[0], APTOSDataset):
-                    return dataset.dataset.datasets[dataset_idx].__getitem__(sample_idx, diagnosis_only=True)
+    def _get_label(self, dataset: TorchDataset, idx: int):
 
-        else:
-            raise NotImplementedError("Only implemented for a Subset of Concatenated APTOSDatasets")
+        self._set_read_image(dataset, False)
+        diagnosis = dataset[idx]
+        self._set_read_image(dataset, True)
+
+        return int(diagnosis)
