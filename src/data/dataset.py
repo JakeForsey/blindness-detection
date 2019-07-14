@@ -30,7 +30,7 @@ class APTOSDataset(TorchDataset):
     def _to_w_h_channels(self, image: np.array):
         return image.transpose(2, 0, 1)
 
-    def _getitem(self, index: int):
+    def _getitem(self, index: int, diagnosis_only: bool = False):
         """
         Get the preprocessed image, diagnosis and id at `index` in the dataset.
 
