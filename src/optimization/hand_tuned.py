@@ -47,7 +47,7 @@ EXPERIMENTS = [
         max_epochs=35,
     ),
     Experiment(
-        description="Resnet18 with Bens normalization and exudates in macula ehancement",
+        description="Pretrained Resnet18 with Bens normalization and exudates in macula ehancement",
         pipeline_stages=[
             (
                 "crop_dark_borders",
@@ -62,17 +62,6 @@ EXPERIMENTS = [
             (
                 "resize",
                 {
-                    "width": TEST_IMAGE_WIDTH,
-                    "height": TEST_IMAGE_HEIGHT,
-                },
-            ),
-            (
-                "enhance_fovea",
-                {
-                    "radius": 11,
-                    "border_tol": 25,
-                    "blur_sigma": 4,
-                    "fovea_aoi_size": 160,
                     "width": TEST_IMAGE_WIDTH,
                     "height": TEST_IMAGE_HEIGHT,
                 },
@@ -94,7 +83,50 @@ EXPERIMENTS = [
         ],
         train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],
-        model=("resnet18", {"num_classes": 5}),
+        model=("resnet18", {"num_classes": 5, "pretrained": True}),
+        batch_size=100,
+        optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
+        test_size=0.2,
+        max_epochs=35,
+    ),
+    Experiment(
+        description="Not pretrained Resnet18 with Bens normalization",
+        pipeline_stages=[
+            (
+                "crop_dark_borders",
+                {
+                    "tol": 10,
+                },
+            ),
+            (
+                "normalize_left_right",
+                {},
+            ),
+            (
+                "resize",
+                {
+                    "width": TEST_IMAGE_WIDTH,
+                    "height": TEST_IMAGE_HEIGHT,
+                },
+            ),
+            (
+                "bens",
+                {
+                    "image_weight": 4,
+                    "blur_window": (0, 0),
+                    "blur_sigma_x": 10,
+                    "blur_weight": -4,
+                    "bias": 128,
+                },
+            ),
+            (
+                "eight_bit_normalization",
+                {}
+            )
+        ],
+        train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
+        train_test_directories=["data/aptos2019-blindness-detection/train_images"],
+        model=("resnet18", {"num_classes": 5, "pretrained": False}),
         batch_size=100,
         optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
