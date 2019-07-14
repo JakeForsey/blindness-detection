@@ -9,7 +9,6 @@ from typing import List
 
 import joblib
 import pandas as pd
-import torch
 from torch.utils.data import DataLoader as TorchDataLoader
 from torch.utils.data import ConcatDataset as TorchConcatDataset
 from torch.utils.data import random_split
@@ -65,7 +64,7 @@ def run_experiment(
         with APTOSMonitor(experiment, cv_iteration) as monitor:
             LOGGER.info(f'tensorboard --logdir "{monitor._summary_writer.log_dir}"')
 
-            monitor.process_cv_start()
+            monitor.on_cv_start()
 
             test_size = experiment.test_size()
             train_ds, test_ds = random_split(
@@ -96,14 +95,13 @@ def run_experiment(
 
             metric_df = pd.DataFrame(columns=["experiment_id", "epoch", "test_loss", "test_accuracy"])
             for epoch in range(1, experiment.max_epochs() + 1):
+
                 LOGGER.info("Epoch: %s", epoch)
 
-                train(1, model, train_loader, optimizer, epoch, device)
-                predictions_proba, predictions,  targets, ids = test(model, test_loader, device)
+                train(model, train_loader, optimizer, device, monitor)
+                predictions_proba, predictions,  targets, ids, losses = test(model, test_loader, device, monitor)
 
-                monitor.process_epoch(epoch, predictions_proba, predictions, targets, ids)
-
-            monitor.process_cv_end(predictions_proba, predictions,  targets, ids)
+            monitor.on_cv_end()
 
         predictions = predictions.tolist()
         targets = targets.tolist()
