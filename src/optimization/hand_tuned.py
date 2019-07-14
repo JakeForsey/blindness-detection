@@ -89,6 +89,7 @@ EXPERIMENTS = [
         optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
         max_epochs=35,
+        sampler=("RandomSampler", {})
     ),
     Experiment(
         description="Not pretrained Resnet18 with Bens normalization",
@@ -170,6 +171,7 @@ EXPERIMENTS = [
         optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
         max_epochs=35,
+        sampler=("RandomSampler", {})
     ),
 ]
 
