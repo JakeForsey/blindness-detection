@@ -7,6 +7,7 @@ import os
 import sqlite3
 from typing import List
 
+import joblib
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader as TorchDataLoader
@@ -45,10 +46,14 @@ def run_experiment(
     dfs = experiment.train_test_data_frames()
     directories = experiment.train_test_directories()
 
+    # File system cache with a 1 to 1 mapping to an experiment, used to cache data for multiple workers,
+    # can safely be used in each cross validation run
+    cache = joblib.Memory(f'./cachedir/{experiment.id()}', verbose=0)
     dataset = TorchConcatDataset(
-        [APTOSDataset(df, directory, pipeline) for df, directory in zip(dfs, directories)]
+        [APTOSDataset(df, directory, pipeline, cache) for df, directory in zip(dfs, directories)]
     )
 
+    # To facilitate software development this makes running end to end tests feasible
     if develop_mode:
         dataset, _ = random_split(dataset, [develop_mode_sampls, len(dataset) - develop_mode_sampls])
 
@@ -114,6 +119,9 @@ def run_experiment(
         })
 
         results.append(Result(experiment, metric_df, results_df))
+
+    # Deletes content on disk... (until experiments have a unique hash this make sense)
+    cache.clear()
 
     return results
 
