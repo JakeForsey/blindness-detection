@@ -30,16 +30,13 @@ class APTOSDataset(TorchDataset):
     def _to_w_h_channels(self, image: np.array):
         return image.transpose(2, 0, 1)
 
-    def _getitem(self, index: int, diagnosis_only: bool = False):
+    def _getitem(self, index: int):
         """
         Get the preprocessed image, diagnosis and id at `index` in the dataset.
 
         :param index: index of the record to fetch
-        :param diagnosis_only: bool, if True only fetch the diagnosis (to avoid processing image)
         :return: Tuple[np.ndarray, np.ndarray, str], preprocessed image, diagnosis, record id
         """
-        if diagnosis_only:
-            return self._data_frame["diagnosis"][index]
 
         id_code = self._data_frame["id_code"][index]
 
@@ -54,7 +51,11 @@ class APTOSDataset(TorchDataset):
 
         return preprocessed_image.astype(np.float32), np.array(diagnosis_class, dtype=np.int64), id_code
 
-    def __getitem__(self, index: int):
+    def __getitem__(self, index: int, diagnosis_only: bool = False):
+        # If only diagnosis is requested, don't cache the request
+        if diagnosis_only:
+            return self._data_frame["diagnosis"][index]
+
         return self._cached_getitem(index)
 
     def __len__(self):

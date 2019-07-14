@@ -47,12 +47,15 @@ def run_experiment(
     # File system cache with a 1 to 1 mapping to an experiment, used to cache data for multiple workers,
     # can safely be used in each cross validation run
     cache = joblib.Memory(f'./cachedir/{experiment.id()}', verbose=0)
+    LOGGER.info("Initialised cache: %s", cache)
+
+    LOGGER.info("Creating APTOSDataset for the following directories: %s", directories)
     dataset = TorchConcatDataset(
         [APTOSDataset(df, directory, pipeline, cache) for df, directory in zip(dfs, directories)]
     )
-
     # To facilitate software development this makes running end to end tests feasible
     if develop_mode:
+        LOGGER.warn("Running in develop mode, using a fraction of the whole dataset")
         dataset, _ = random_split(dataset, [develop_mode_sampls, len(dataset) - develop_mode_sampls])
 
     results = []
