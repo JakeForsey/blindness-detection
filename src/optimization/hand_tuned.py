@@ -8,7 +8,7 @@ from src.optimization.experiment import Experiment
 
 EXPERIMENTS = [
     Experiment(
-        description="MnistExampleV01 with Bens normalization",
+        description="Resnet, Bens normalization, over sampling, 256x256, 2015 & 2019 training dataset",
         # Standardize differences and hand engineer features to reduce the required complexity
         # to model the problem
         pipeline_stages=[
@@ -36,34 +36,42 @@ EXPERIMENTS = [
                 },
             ),
             (
+                "resize",
+                {
+                    "width": 256,
+                    "height": 256,
+                },
+            ),
+            (
                 "eight_bit_normalization",
                 {}
             )
         ],
-        # Introduce slight variations into training cycle in an attempt to increase
-        # data set size
-        augmentation_stages=[],
-        train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
-        train_test_directories=["data/aptos2019-blindness-detection/train_images"],
-        model=("MnistExampleV01", {}),
+        train_test_data_frames=[
+            "data/aptos2019-blindness-detection/train.csv",
+            # To use this dataset, the column names need to be converted to "id_code" and "diagnosis"
+            "/media/jake/ssd/aptos2015-blindness-detection/trainLabels.csv"
+        ],
+        train_test_directories=[
+            "data/aptos2019-blindness-detection/train_images",
+            # To use this dataset, the column names need to be converted to "id_code" and "diagnosis"
+            "/media/jake/ssd/aptos2015-blindness-detection/train"
+        ],
+        model=("resnet18", {"num_classes": 5, "pretrained": False}),
         batch_size=100,
-        optimizer=("SGD", {"lr": 0.001, "momentum": 0.9}),
+        optimizer=("Adam", {"lr": 1e-3}),
         test_size=0.2,
-        max_epochs=35,
-        sampler=("RandomSampler", {})
+        max_epochs=100,
+        sampler=("ImbalancedAPTOSDatasetSampler", {})
     ),
     Experiment(
-        description="Pretrained Resnet18 with Bens normalization and exudates in macula ehancement and over sampling",
+        description="Resnet, Bens normalization, over sampling, 128x128, 2015 & 2019 training dataset",
         pipeline_stages=[
             (
                 "crop_dark_borders",
                 {
                     "tol": 10,
                 },
-            ),
-            (
-                "normalize_left_right",
-                {},
             ),
             (
                 "resize",
@@ -77,51 +85,7 @@ EXPERIMENTS = [
                 {
                     "image_weight": 4,
                     "blur_window": (0, 0),
-                    "blur_sigma_x": 10,
-                    "blur_weight": -4,
-                    "bias": 128,
-                },
-            ),
-            (
-                "eight_bit_normalization",
-                {}
-            )
-        ],
-        train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
-        train_test_directories=["data/aptos2019-blindness-detection/train_images"],
-        model=("resnet18", {"num_classes": 5, "pretrained": True}),
-        batch_size=100,
-        optimizer=("SGD", {"lr": 0.001, "momentum": 0.9}),
-        test_size=0.2,
-        max_epochs=35,
-        sampler=("RandomSampler", {})
-    ),
-    Experiment(
-        description="Not pretrained Resnet18 with Bens normalization",
-        pipeline_stages=[
-            (
-                "crop_dark_borders",
-                {
-                    "tol": 10,
-                },
-            ),
-            (
-                "normalize_left_right",
-                {},
-            ),
-            (
-                "resize",
-                {
-                    "width": TEST_IMAGE_WIDTH,
-                    "height": TEST_IMAGE_HEIGHT,
-                },
-            ),
-            (
-                "bens",
-                {
-                    "image_weight": 4,
-                    "blur_window": (0, 0),
-                    "blur_sigma_x": 10,
+                    "blur_sigma_x": 20,
                     "blur_weight": -4,
                     "bias": 128,
                 },
@@ -159,18 +123,8 @@ EXPERIMENTS = [
             (
                 "resize",
                 {
-                    "width": 256,
-                    "height": 256,
-                },
-            ),
-            (
-                "bens",
-                {
-                    "image_weight": 4,
-                    "blur_window": (0, 0),
-                    "blur_sigma_x": 10,
-                    "blur_weight": -4,
-                    "bias": 128,
+                    "width": 128,
+                    "height": 128,
                 },
             ),
             (
@@ -188,11 +142,11 @@ EXPERIMENTS = [
             # To use this dataset, the column names need to be converted to "id_code" and "diagnosis"
             "/media/jake/ssd/aptos2015-blindness-detection/train"
         ],
-        model=("resnet18", {"num_classes": 5, "pretrained": True}),
+        model=("resnet18", {"num_classes": 5, "pretrained": False}),
         batch_size=100,
-        optimizer=("SGD", {"lr": 0.001, "momentum": 0.9}),
+        optimizer=("Adam", {"lr": 1e-3}),
         test_size=0.2,
-        max_epochs=35,
+        max_epochs=100,
         sampler=("ImbalancedAPTOSDatasetSampler", {})
     ),
 ]
