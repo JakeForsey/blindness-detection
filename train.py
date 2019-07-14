@@ -65,10 +65,14 @@ def run_experiment(
                 [round((1 - test_size) * len(dataset)), round(test_size * len(dataset))]
             )
 
+            sampler, sampler_kwargs = experiment.sampler()
+            sampler = sampler(train_ds, **sampler_kwargs)
+
             train_loader = TorchDataLoader(
                 train_ds,
                 batch_size=experiment.batch_size(),
                 num_workers=data_loader_workers,
+                sampler=sampler
             )
 
             test_loader = TorchDataLoader(

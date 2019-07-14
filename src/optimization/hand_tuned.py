@@ -8,7 +8,7 @@ from src.optimization.experiment import Experiment
 
 EXPERIMENTS = [
     Experiment(
-        description="MnistExampleV01 with Bens normalization",
+        description="MnistExampleV01 with Bens normalization and over sampling",
         pipeline_stages=[
             (
                 "crop_dark_borders",
@@ -45,9 +45,10 @@ EXPERIMENTS = [
         optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
         max_epochs=35,
+        sampler=("RandomSampler", {})
     ),
     Experiment(
-        description="Pretrained Resnet18 with Bens normalization and exudates in macula ehancement",
+        description="Pretrained Resnet18 with Bens normalization and exudates in macula ehancement and over sampling",
         pipeline_stages=[
             (
                 "crop_dark_borders",
@@ -131,6 +132,7 @@ EXPERIMENTS = [
         optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
         max_epochs=35,
+        sampler=("ImbalancedAPTOSDatasetSampler", {})
     ),
 ]
 
