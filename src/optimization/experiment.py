@@ -22,11 +22,12 @@ from src.data.sampling import ImbalancedAPTOSDatasetSampler
 
 SAMPLERS = {
     "ImbalancedAPTOSDatasetSampler": ImbalancedAPTOSDatasetSampler,
-    "RandomSampler": RandomSampler
+    "RandomSampler": RandomSampler,
 }
 
 OPTIMIZERS = {
     "SGD": optim.SGD,
+    "Adam": optim.Adam,
 }
 
 MODELS = {
