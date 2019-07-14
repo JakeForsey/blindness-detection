@@ -6,11 +6,9 @@ import numpy as np
 import pandas as pd
 from torch.utils.data import Dataset as TorchDataset
 
-from src.preprocess.pipeline import Pipeline
-
 
 class APTOSDataset(TorchDataset):
-    def __init__(self, data_frame: pd.DataFrame, data_directory: str, preprocess_pipeline: Pipeline, cache: joblib.Memory):
+    def __init__(self, data_frame: pd.DataFrame, data_directory: str, preprocess_pipeline, cache: joblib.Memory):
         super().__init__()
         self._data_frame = data_frame
         self._data_directory = data_directory
@@ -27,6 +25,16 @@ class APTOSDataset(TorchDataset):
         return image.transpose(2, 0, 1)
 
     def _getitem(self, index: int):
+        """
+        Get the preprocessed image, diagnosis and id at `index` in the dataset.
+
+        :param index: index of the record to fetch
+        :param diagnosis_only: bool, if True only fetch the diagnosis (to avoid processing image)
+        :return: Tuple[np.ndarray, np.ndarray, str], preprocessed image, diagnosis, record id
+        """
+        if diagnosis_only:
+            return self._data_frame["diagnosis"][index]
+
         id_code = self._data_frame["id_code"][index]
 
         image = self._load_image(id_code)

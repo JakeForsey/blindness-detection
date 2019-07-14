@@ -3,6 +3,7 @@
 
 env/
 data/
+!src/data
 results/*
 
 **/__pycache__
