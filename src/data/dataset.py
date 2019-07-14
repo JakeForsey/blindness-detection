@@ -14,7 +14,11 @@ class APTOSDataset(TorchDataset):
         self._data_directory = data_directory
         self._preprocess_pipeline = preprocess_pipeline
         self._classes = 5
-        self._cached_getitem = cache.cache(self._getitem)
+        self._cached_get_image_diagnosis_id = cache.cache(self._get_image_diagnosis_id)
+        self._read_image = True
+
+    def set_read_image(self, value: bool):
+        self._read_image = value
 
     def _load_image(self, id_code):
         # aptos 2015 dataset used .jpeg, aptos 2019 used .png
@@ -30,7 +34,7 @@ class APTOSDataset(TorchDataset):
     def _to_w_h_channels(self, image: np.array):
         return image.transpose(2, 0, 1)
 
-    def _getitem(self, index: int):
+    def _get_image_diagnosis_id(self, index: int):
         """
         Get the preprocessed image, diagnosis and id at `index` in the dataset.
 
@@ -40,23 +44,29 @@ class APTOSDataset(TorchDataset):
 
         id_code = self._data_frame["id_code"][index]
 
+        try:
+            diagnosis_class = self._data_frame["diagnosis"][index]
+            diagnosis = np.array(diagnosis_class, dtype=np.int64)
+        except KeyError:
+            raise KeyError("Are you using the test (submission) dataset? Try using APTOSSubmissionDataset instead.")
+
         image = self._load_image(id_code)
         preprocessed_image = self._preprocess_pipeline(image)
         # preprocessed_image = self._to_w_h_channels(preprocessed_image)
 
-        try:
-            diagnosis_class = self._data_frame["diagnosis"][index]
-        except KeyError:
-            raise KeyError("Are you using the test (submission) dataset? Try using APTOSSubmissionDataset instead.")
+        return preprocessed_image.astype(np.float32), diagnosis, id_code
 
-        return preprocessed_image.astype(np.float32), np.array(diagnosis_class, dtype=np.int64), id_code
+    def _get_diagnosis(self, index: int):
+        diagnosis_class = self._data_frame["diagnosis"][index]
+        diagnosis = np.array(diagnosis_class, dtype=np.int64)
 
-    def __getitem__(self, index: int, diagnosis_only: bool = False):
-        # If only diagnosis is requested, don't cache the request
-        if diagnosis_only:
-            return self._data_frame["diagnosis"][index]
+        return diagnosis
 
-        return self._cached_getitem(index)
+    def __getitem__(self, index: int):
+        if self._read_image:
+            return self._cached_get_image_diagnosis_id(index)
+        else:
+            return self._get_diagnosis(index)
 
     def __len__(self):
         return len(self._data_frame)
