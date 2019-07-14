@@ -148,6 +148,43 @@ EXPERIMENTS = [
         max_epochs=35,
         sampler=("ImbalancedAPTOSDatasetSampler", {})
     ),
+    Experiment(
+        description="Resnet18 with 2015 and 2019 training datasets",
+        pipeline_stages=[
+            (
+                "crop_dark_borders",
+                {
+                    "tol": 10,
+                },
+            ),
+            (
+                "resize",
+                {
+                    "width": TEST_IMAGE_WIDTH,
+                    "height": TEST_IMAGE_HEIGHT,
+                },
+            ),
+            (
+                "eight_bit_normalization",
+                {}
+            )
+        ],
+        train_test_data_frames=[
+            "data/aptos2019-blindness-detection/train.csv",
+            # To use this dataset, the column names need to be converted to "id_code" and "diagnosis"
+            "/media/jake/ssd/aptos2015-blindness-detection/trainLabels.csv"
+        ],
+        train_test_directories=[
+            "data/aptos2019-blindness-detection/train_images",
+            # To use this dataset, the column names need to be converted to "id_code" and "diagnosis"
+            "/media/jake/ssd/aptos2015-blindness-detection/train"
+        ],
+        model=("resnet18", {"num_classes": 5}),
+        batch_size=100,
+        optimzier=("SGD", {"lr": 0.001, "momentum": 0.9}),
+        test_size=0.2,
+        max_epochs=35,
+    ),
 ]
 
 
