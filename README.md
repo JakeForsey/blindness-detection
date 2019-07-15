@@ -34,5 +34,16 @@ Inspired by: https://www.kaggle.com/c/petfinder-adoption-prediction/discussion/8
 1. Upload the experiment folder in ./results
 
 #### Run
-1. Run the kernel
+1. Copy and paste the following into the kernel
+```python
+import sys
 
+sys.path.append("../input/blindness-detection-master/blindness-detection-master/")
+
+from submit import main
+
+main("<experiment_id>")
+```
+
+2. Update <experiment_id>
+3. Run kernel

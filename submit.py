@@ -50,8 +50,6 @@ def main(
     predictions_proba, predictions, ids = inference(model, loader, "cpu")
 
     sample = pd.read_csv(os.path.join(input_directory, "sample_submission.csv"))
-    print(sample)
-    print(predictions)
 
     sample.diagnosis = predictions
     sample.to_csv("submission.csv", index=False)
