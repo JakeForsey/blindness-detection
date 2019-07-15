@@ -9,9 +9,10 @@ from typing import List
 
 import joblib
 import pandas as pd
+import torch
 from torch.utils.data import DataLoader as TorchDataLoader
 from torch.utils.data import ConcatDataset as TorchConcatDataset
-from torch.utils.data import random_split
+from torch.utils.data import random_split as torch_random_split
 
 from src.argument_parser import parse_training_arguments
 from src.preprocess.pipeline import Pipeline
@@ -57,7 +58,7 @@ def run_experiment(
     # To facilitate software development this makes running end to end tests feasible
     if develop_mode:
         LOGGER.warn("Running in develop mode, using a fraction of the whole dataset")
-        dataset, _ = random_split(dataset, [develop_mode_sampls, len(dataset) - develop_mode_sampls])
+        dataset, _ = torch_random_split(dataset, [develop_mode_sampls, len(dataset) - develop_mode_sampls])
 
     results = []
     for cv_iteration in range(1,  cross_validation_iterations + 1):
@@ -69,7 +70,7 @@ def run_experiment(
             monitor.on_cv_start()
 
             test_size = experiment.test_size()
-            train_ds, test_ds = random_split(
+            train_ds, test_ds = torch_random_split(
                 dataset,
                 [round((1 - test_size) * len(dataset)), round(test_size * len(dataset))]
             )
@@ -105,6 +106,19 @@ def run_experiment(
 
                 train(model, train_loader, optimizer, device, monitor)
                 predictions_proba, predictions,  targets, ids, losses = test(model, test_loader, device, monitor)
+
+                if epoch % 5 == 0:
+                    checkpoint = {
+                        'model': model,
+                        'state_dict': model.state_dict(),
+                        'optimizer': optimizer.state_dict()
+                    }
+
+                    checkpoint_directory = f'results/{experiment.id()}'
+                    if not os.path.isdir(checkpoint_directory):
+                        os.mkdir(checkpoint_directory)
+
+                    torch.save(checkpoint, os.path.join(checkpoint_directory, f'{cv_iteration}-{epoch}-checkpoint.pth'))
 
             monitor.on_cv_end()
 
