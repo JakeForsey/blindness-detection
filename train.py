@@ -106,14 +106,15 @@ def run_experiment(
                     checkpoint = {
                         'model': model,
                         'state_dict': model.state_dict(),
-                        'optimizer': optimizer.state_dict()
+                        'optimizer': optimizer.state_dict(),
+                        'experiment': experiment.state_dict()
                     }
 
                     checkpoint_directory = f'results/{experiment.id()}'
                     if not os.path.isdir(checkpoint_directory):
                         os.mkdir(checkpoint_directory)
 
-                    torch.save(checkpoint, os.path.join(checkpoint_directory, f'{cv_iteration}-{epoch}-checkpoint.pth'))
+                    torch.save(checkpoint, os.path.join(checkpoint_directory, f'{cv_iteration}-checkpoint.pth'))
 
             monitor.on_cv_end()
 
