@@ -82,3 +82,30 @@ def parse_training_arguments():
     )
 
     return arg_parser.parse_args()
+
+
+def parse_submission_arguments():
+    arg_parser = argparse.ArgumentParser()
+
+    arg_parser.add_argument(
+        "--experiment-id",
+        type=str,
+        help="Id of the experiment to use to make submission.",
+        required=True
+    )
+
+    arg_parser.add_argument(
+        "--results-directory",
+        type=str,
+        help="Directory containing the experiment results.",
+        default="results"
+    )
+
+    arg_parser.add_argument(
+        "--input-directory",
+        type=str,
+        help="Directory containing the test data.",
+        default="../input/aptos2019-blindness-detection"
+    )
+
+    return arg_parser.parse_args()

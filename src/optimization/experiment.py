@@ -65,7 +65,7 @@ class Experiment:
             train_test_data_frames: List[str],
             model: Tuple[str, dict],
             batch_size: int,
-            optimzier: Tuple[str, dict],
+            optimizer: Tuple[str, dict],
             test_size: float,
             max_epochs: int,
             sampler: Tuple[str, dict],
@@ -80,7 +80,7 @@ class Experiment:
         self._train_test_data_frames = train_test_data_frames
         self._model_string, self._model_kwargs = model
         self._batch_size = batch_size
-        self._optimzier_string, self._optimizer_kwargs = optimzier
+        self._optimizer_string, self._optimizer_kwargs = optimizer
         self._max_epochs = max_epochs
         self._test_size = test_size
         self._sampler_string, self._sampler_kwargs = sampler
@@ -112,7 +112,7 @@ class Experiment:
         return self._batch_size
 
     def optimizer(self):
-        return OPTIMIZERS[self._optimzier_string], self._optimizer_kwargs
+        return OPTIMIZERS[self._optimizer_string], self._optimizer_kwargs
 
     def test_size(self):
         return self._test_size
@@ -126,11 +126,26 @@ class Experiment:
     def sampler(self):
         return SAMPLERS[self._sampler_string], self._sampler_kwargs
 
-    def from_json(self, json_string):
-        raise NotImplemented()
+    @staticmethod
+    def from_dict(state_dict):
+        return Experiment(
+            pipeline_stages=state_dict["pipeline_stages"],
+            train_test_directories=state_dict["train_test_directories"],
+            train_test_data_frames=state_dict["train_test_data_frames"],
+            model=(state_dict["model"], state_dict["model_kwargs"]),
+            batch_size=state_dict["batch_size"],
+            optimizer=(state_dict["optimizer"], state_dict["optimizer_kwargs"]),
+            test_size=state_dict["test_size"],
+            max_epochs=state_dict["pipeline_stages"],
+            sampler=(state_dict["sampler"], state_dict["sampler_kwargs"]),
+            description=state_dict["description"],
+        )
 
     def to_json(self):
-        return json.dumps({
+        return json.dumps(self.state_dict())
+
+    def state_dict(self):
+        return {
             "id": self._id,
             "description": self._description,
             "pipeline_stages": self._pipeline_stages,
@@ -145,4 +160,4 @@ class Experiment:
             "test_size": self._test_size,
             "sampler": self._sampler_string,
             "sampler_kwargs": self._sampler_kwargs
-        })
+        }

@@ -86,3 +86,36 @@ def test(model: torch.nn.Module, test_loader: TorchDataLoader, device, monitor: 
         monitor.on_test_end(predictions_proba, predictions,  targets, ids, losses)
 
     return predictions_proba, predictions,  targets, ids, losses
+
+
+def inference(model: torch.nn.Module, loader: TorchDataLoader, device):
+    model.eval()
+
+    if device and torch.cuda.is_available():
+        device = torch.device(device)
+    else:
+        device = torch.device('cpu')
+
+    model.to(device)
+
+    predictions = []
+    predictions_proba = []
+    ids = []
+    with torch.no_grad():
+        for batch_idx, (data, id_code) in enumerate(loader):
+            print(batch_idx)
+            data = data.to(device)
+
+            output = model(data)
+            preds_proba = F.log_softmax(output, dim=1)
+
+            preds = preds_proba.argmax(dim=1)
+
+            predictions_proba.extend(preds_proba.cpu())
+            predictions.extend(preds.cpu())
+            ids.extend(id_code)
+
+    predictions_proba = torch.stack(predictions_proba)
+    predictions = torch.stack(predictions)
+
+    return predictions_proba, predictions, ids

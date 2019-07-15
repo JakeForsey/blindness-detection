@@ -8,9 +8,7 @@ from src.optimization.experiment import Experiment
 
 EXPERIMENTS = [
     Experiment(
-        description="Resnet, Bens normalization, over sampling, 256x256, 2015 & 2019 training dataset",
-        # Standardize differences and hand engineer features to reduce the required complexity
-        # to model the problem
+        description="First submission",
         pipeline_stages=[
             (
                 "crop_dark_borders",
@@ -26,59 +24,8 @@ EXPERIMENTS = [
                 },
             ),
             (
-                "bens",
-                {
-                    "image_weight": 4,
-                    "blur_window": (0, 0),
-                    "blur_sigma_x": 20,
-                    "blur_weight": -4,
-                    "bias": 128,
-                },
-            ),
-            (
-                "resize",
-                {
-                    "width": 256,
-                    "height": 256,
-                },
-            ),
-            (
-                "eight_bit_normalization",
-                {}
-            )
-        ],
-        train_test_data_frames=[
-            "data/aptos2019-blindness-detection/train.csv",
-            # To use this dataset, the column names need to be converted to "id_code" and "diagnosis"
-            "/media/jake/ssd/aptos2015-blindness-detection/trainLabels.csv"
-        ],
-        train_test_directories=[
-            "data/aptos2019-blindness-detection/train_images",
-            # To use this dataset, the column names need to be converted to "id_code" and "diagnosis"
-            "/media/jake/ssd/aptos2015-blindness-detection/train"
-        ],
-        model=("resnet18", {"num_classes": 5, "pretrained": False}),
-        batch_size=100,
-        optimizer=("Adam", {"lr": 1e-3}),
-        test_size=0.2,
-        max_epochs=100,
-        sampler=("ImbalancedAPTOSDatasetSampler", {})
-    ),
-    Experiment(
-        description="Resnet, Bens normalization, over sampling, 128x128, 2015 & 2019 training dataset",
-        pipeline_stages=[
-            (
-                "crop_dark_borders",
-                {
-                    "tol": 10,
-                },
-            ),
-            (
-                "resize",
-                {
-                    "width": TEST_IMAGE_WIDTH,
-                    "height": TEST_IMAGE_HEIGHT,
-                },
+                "normalize_left_right",
+                {},
             ),
             (
                 "bens",
@@ -109,44 +56,6 @@ EXPERIMENTS = [
         optimizer=("SGD", {"lr": 0.001, "momentum": 0.9}),
         test_size=0.2,
         max_epochs=35,
-        sampler=("ImbalancedAPTOSDatasetSampler", {})
-    ),
-    Experiment(
-        description="Pretrained Resnet18 with 2015 and 2019 training datasets with Bens normalization and over sampling",
-        pipeline_stages=[
-            (
-                "crop_dark_borders",
-                {
-                    "tol": 10,
-                },
-            ),
-            (
-                "resize",
-                {
-                    "width": 128,
-                    "height": 128,
-                },
-            ),
-            (
-                "eight_bit_normalization",
-                {}
-            )
-        ],
-        train_test_data_frames=[
-            "data/aptos2019-blindness-detection/train.csv",
-            # To use this dataset, the column names need to be converted to "id_code" and "diagnosis"
-            "/media/jake/ssd/aptos2015-blindness-detection/trainLabels.csv"
-        ],
-        train_test_directories=[
-            "data/aptos2019-blindness-detection/train_images",
-            # To use this dataset, the column names need to be converted to "id_code" and "diagnosis"
-            "/media/jake/ssd/aptos2015-blindness-detection/train"
-        ],
-        model=("resnet18", {"num_classes": 5, "pretrained": False}),
-        batch_size=100,
-        optimizer=("Adam", {"lr": 1e-3}),
-        test_size=0.2,
-        max_epochs=100,
         sampler=("ImbalancedAPTOSDatasetSampler", {})
     ),
 ]

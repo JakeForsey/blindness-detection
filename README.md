@@ -18,3 +18,21 @@ deactivate
 ```
 ./train.py
 ```
+
+## Submitting
+
+TODO validate this approach and update 
+
+Inspired by: https://www.kaggle.com/c/petfinder-adoption-prediction/discussion/82092
+
+#### Setting up repo
+1. Download the git repo as a zip file
+2. Upload the git repo to kaggle kernel as a dataset
+3. Add !cp -r ../input/path/to/git/* ./
+
+#### Setting up the trained model
+1. Upload the experiment folder in ./results
+
+#### Run
+1. Run the kernel
+
