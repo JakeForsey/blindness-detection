@@ -126,10 +126,10 @@ class APTOSMonitor:
         )
 
         normalized_images = [torch.from_numpy(image) for image, _, _ in [dataset[i] for i in range(10)]]
-
         self._summary_writer.add_image(
             tag=f"normalized_images",
-            img_tensor=torch.cat(normalized_images, 1)
+            img_tensor=torch.cat(normalized_images, 1),
+            dataformats="HWC"
         )
 
     def on_cv_end(self):
