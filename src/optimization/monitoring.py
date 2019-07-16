@@ -1,12 +1,12 @@
 import os
 from typing import List
 
-import torch
-from torch.utils.tensorboard import SummaryWriter
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import cohen_kappa_score
-
+import torch
+from torch.utils.tensorboard import SummaryWriter
+from torch.utils.data import Dataset as TorchDataset
 
 from src.optimization.experiment import Experiment
 from src.visualisations import plot_confusion_matrix
@@ -102,8 +102,8 @@ class APTOSMonitor:
             dataformats="HWC"
         )
 
-    def on_cv_start(self):
-        self._epoch = 0
+    def on_cv_start(self, dataset: TorchDataset):
+        self._epoch = 1
 
         self._summary_writer.add_text(
             tag="description",
@@ -123,6 +123,13 @@ class APTOSMonitor:
         self._summary_writer.add_text(
             tag="datasets",
             text_string=f"{self._experiment.train_test_directories()}"
+        )
+
+        normalized_images = [torch.from_numpy(image) for image, _, _ in [dataset[i] for i in range(10)]]
+
+        self._summary_writer.add_image(
+            tag=f"normalized_images",
+            img_tensor=torch.cat(normalized_images, 1)
         )
 
     def on_cv_end(self):
