@@ -3,6 +3,9 @@ from typing import Callable
 from typing import Union
 from typing import List
 
+import cv2
+import numpy as np
+
 from src.optimization.experiment import PIPELINE_STAGES
 
 import matplotlib.pyplot as plt
@@ -23,9 +26,13 @@ class Pipeline:
         self._debug = debug
 
     def __call__(self, image):
-        image_stages = [("input", image)]
+        border_mask = self._create_border_mask(image)
+        image_stages = [("input", image), ("mask", border_mask)]
+
         for f, kwargs in self._stages:
-            image = f(image, **kwargs)
+            image, border_mask = f(image, border_mask=border_mask, **kwargs)
+            assert image.shape == border_mask.shape, f"{f.__name__} did not maintain the shape of the mask"
+
             if self._debug:
                 image_stages.append((f.__name__, image))
 
@@ -47,6 +54,39 @@ class Pipeline:
                 ax[0].set_title(stage)
 
         return image
+
+    def _create_border_mask(self, image, resize_factor: int = 3):
+        """
+        Inspired(!) by:
+        https://medium.com/@sonu008/image-enhancement-contrast-stretching-using-opencv-python-6ad61f6f171c
+
+        :param image:
+        :param resize_factor:
+        :return:
+        """
+        width, height = round(image.shape[1] / resize_factor), round(image.shape[0] / resize_factor)
+
+        resized_image = cv2.resize(image, (width, height))
+
+        grey = cv2.cvtColor(resized_image, cv2.COLOR_BGR2GRAY)
+
+        # Log transform
+        grey = 0.2 * (np.log(1 + np.float32(grey)))
+        grey = cv2.convertScaleAbs(grey)
+
+        _, mask = cv2.threshold(
+            cv2.GaussianBlur(grey, (21, 21), 10),
+            0, 255,
+            cv2.THRESH_OTSU
+        )
+
+        # Back up to full size
+        resized_mask = cv2.resize(mask, (image.shape[1], image.shape[0]), cv2.INTER_NEAREST)
+
+        # Convert to 3 dimensions
+        border_mask = np.stack((resized_mask, ) * 3, axis=-1)
+
+        return border_mask
 
     @staticmethod
     def initialise_stages(stages: List[Tuple[str, dict]]) -> List[Tuple[Callable, dict]]:
