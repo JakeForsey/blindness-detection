@@ -89,6 +89,9 @@ class Experiment:
             description = time.time()
         self._description = description
 
+    def __str__(self):
+        return str(self.state_dict())
+
     def id(self):
         return self._id
 
@@ -154,7 +157,7 @@ class Experiment:
             "model": self._model_string,
             "model_kwargs": self._model_kwargs,
             "batch_size": self._batch_size,
-            "optimizer": self._optimzier_string,
+            "optimizer": self._optimizer_string,
             "optimizer_kwargs": self._optimizer_kwargs,
             "max_epochs": self._max_epochs,
             "test_size": self._test_size,

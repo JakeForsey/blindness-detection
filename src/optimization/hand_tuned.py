@@ -17,17 +17,6 @@ EXPERIMENTS = [
                 },
             ),
             (
-                "resize",
-                {
-                    "width": TEST_IMAGE_WIDTH,
-                    "height": TEST_IMAGE_HEIGHT,
-                },
-            ),
-            (
-                "normalize_left_right",
-                {},
-            ),
-            (
                 "bens",
                 {
                     "image_weight": 4,
@@ -35,6 +24,13 @@ EXPERIMENTS = [
                     "blur_sigma_x": 20,
                     "blur_weight": -4,
                     "bias": 128,
+                },
+            ),
+            (
+                "resize",
+                {
+                    "width": 256,
+                    "height": 256,
                 },
             ),
             (
@@ -53,9 +49,9 @@ EXPERIMENTS = [
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],
         model=("resnet18", {"num_classes": 5, "pretrained": False}),
         batch_size=100,
-        optimizer=("SGD", {"lr": 0.001, "momentum": 0.9}),
+        optimizer=("Adam", {"lr": 1e-5}),
         test_size=0.2,
-        max_epochs=35,
+        max_epochs=60,
         sampler=("ImbalancedAPTOSDatasetSampler", {})
     ),
 ]

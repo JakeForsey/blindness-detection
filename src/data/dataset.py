@@ -29,6 +29,9 @@ class APTOSDataset(TorchDataset):
     def set_read_diagnosis(self, value: bool):
         self._read_diagnosis = value
 
+    def set_read_id(self, value: bool):
+        self._read_id = value
+
     def _load_image(self, id_code):
         # aptos 2015 dataset used .jpeg, aptos 2019 used .png
         for file_extension in [".png", ".jpeg"]:
@@ -80,6 +83,9 @@ class APTOSDataset(TorchDataset):
 
         if self._read_id:
             result.append(self._get_id(index))
+
+        if len(result) == 1:
+            result = result[0]
 
         return result
 
