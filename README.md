@@ -28,22 +28,21 @@ Inspired by: https://www.kaggle.com/c/petfinder-adoption-prediction/discussion/8
 #### Setting up repo
 1. Download the git repo as a zip file
 2. Upload the git repo to kaggle kernel as a dataset
-3. Add !cp -r ../input/path/to/git/* ./
 
 #### Setting up the trained model
-1. Upload the experiment folder in ./results
+1. Upload the trained checkpoint file to kaggle kernel as a dataset
 
 #### Run
 1. Copy and paste the following into the kernel
 ```python
 import sys
 
-sys.path.append("../input/blindness-detection-master/blindness-detection-master/")
+sys.path.append("../input/path/to/root/of/blindness-detection/")
 
 from submit import main
 
-main("<experiment_id>")
+main("<path_to_checkpoint>", "<path_to_image_directory", "path_to_image_data_frame")
 ```
 
-2. Update <experiment_id>
+2. Update "<path_to_checkpoint>", "<path_to_image_directory", "path_to_image_data_frame"
 3. Run kernel
