@@ -133,7 +133,7 @@ def run_experiment(
             "id_code": ids
         })
 
-        results.append(Result(experiment, metric_df, results_df))
+        results.append(Result(experiment, results_df))
 
     # Deletes content on disk... (until experiments have a unique hash this make sense)
     cache.clear()

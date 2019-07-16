@@ -10,17 +10,14 @@ from src.optimization.experiment import Experiment
 class Result:
     """Represents a completed experiment."""
 
-    def __init__(self, experiment: Experiment, metric_df: pd.DataFrame, results_df: pd.DataFrame):
+    def __init__(self, experiment: Experiment, results_df: pd.DataFrame):
         self._experiment = experiment
-        self._metric_df = metric_df
         self._results_df = results_df
 
     def json_file_path(self, directory):
         return os.path.join(directory, self._experiment.id() + ".json")
 
     def persist(self, directory: str, connection: sqlite3.Connection):
-
-        # TODO persist metrics_df which will contain summary statistics
 
         # Persist the performance metrics
         self._results_df.to_sql(
