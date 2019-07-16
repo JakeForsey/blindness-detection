@@ -67,8 +67,6 @@ def run_experiment(
         with APTOSMonitor(experiment, cv_iteration) as monitor:
             LOGGER.info(f'tensorboard --logdir "{monitor._summary_writer.log_dir}"')
 
-            monitor.on_cv_start()
-
             test_size = experiment.test_size()
             train_ds, test_ds = torch_random_split(
                 dataset,
@@ -99,7 +97,8 @@ def run_experiment(
             optimizer_class, optim_kwargs = experiment.optimizer()
             optimizer = optimizer_class(model.parameters(), **optim_kwargs)
 
-            metric_df = pd.DataFrame(columns=["experiment_id", "epoch", "test_loss", "test_accuracy"])
+            monitor.on_cv_start(train_ds)
+
             for epoch in range(1, experiment.max_epochs() + 1):
 
                 LOGGER.info("Epoch: %s", epoch)
