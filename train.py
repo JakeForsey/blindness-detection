@@ -97,7 +97,7 @@ def run_experiment(
             optimizer_class, optim_kwargs = experiment.optimizer()
             optimizer = optimizer_class(model.parameters(), **optim_kwargs)
 
-            monitor.on_cv_start(train_ds)
+            monitor.on_cv_start(train_ds, augmentations)
 
             for epoch in range(1, experiment.max_epochs() + 1):
 

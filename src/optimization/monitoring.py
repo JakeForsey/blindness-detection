@@ -10,6 +10,7 @@ from torch.utils.data import Dataset as TorchDataset
 
 from src.optimization.experiment import Experiment
 from src.visualisations import plot_confusion_matrix
+from src.preprocess.augmentation import AugmentedCollate
 
 
 class APTOSMonitor:
@@ -102,7 +103,7 @@ class APTOSMonitor:
             dataformats="HWC"
         )
 
-    def on_cv_start(self, dataset: TorchDataset):
+    def on_cv_start(self, dataset: TorchDataset, augmentations: AugmentedCollate):
         self._epoch = 1
 
         self._summary_writer.add_text(
@@ -129,6 +130,16 @@ class APTOSMonitor:
         self._summary_writer.add_image(
             tag=f"normalized_images",
             img_tensor=torch.cat(normalized_images, 1),
+            dataformats="HWC"
+        )
+
+        # Augmentations are applied to lists of numpy arrays and are returned as batches of tensors
+        augmented_images = [
+            image.squeeze() for image, _, _ in [augmentations([dataset[i]]) for i in range(10)]
+        ]
+        self._summary_writer.add_image(
+            tag=f"augmented_images",
+            img_tensor=torch.cat(augmented_images, 1),
             dataformats="HWC"
         )
 
