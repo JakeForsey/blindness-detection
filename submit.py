@@ -22,11 +22,12 @@ LOGGER = logging.getLogger(__name__)
 def main(
         experiment_id: str,
         results_directory: str = "results",
-        input_directory: str = "../input/aptos2019-blindness-detection"
+        input_directory: str = "../input/aptos2019-blindness-detection",
+        checkpoint_file: str = "1-checkpoint.pth"
 ):
     LOGGER.info("Beginning submission")
     # Always load the first iteration from cross validation? Should really re-train on the whole dataset
-    checkpoint = torch.load(os.path.join(results_directory, experiment_id, "1-checkpoint.pth"))
+    checkpoint = torch.load(os.path.join(results_directory, experiment_id, checkpoint_file))
     LOGGER.info("Loaded checkpoint")
 
     experiment_state_dict = checkpoint["experiment"]
@@ -35,7 +36,7 @@ def main(
         train_test_data_frames=[os.path.join(input_directory, "test.csv")]
     )
     experiment = Experiment.from_dict(experiment_state_dict)
-    LOGGER.info("Initialised experiement")
+    LOGGER.info("Initialised experiment: %s", experiment)
 
     pipeline = Pipeline(experiment.pipeline_stages())
     LOGGER.info("Initialised pipeline")

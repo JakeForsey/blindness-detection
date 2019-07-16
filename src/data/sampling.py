@@ -81,10 +81,23 @@ class ImbalancedAPTOSDatasetSampler(BaseImbalancedDatasetSampler):
         elif isinstance(dataset, TorchSubset):
             self._set_read_image(dataset.dataset, value)
 
+    def _set_read_id(self, dataset: TorchDataset, value: bool):
+        if isinstance(dataset, APTOSDataset):
+            dataset.set_read_id(value)
+
+        elif isinstance(dataset, TorchConcatDataset):
+            for ds in dataset.datasets:
+                self._set_read_id(ds, value)
+
+        elif isinstance(dataset, TorchSubset):
+            self._set_read_id(dataset.dataset, value)
+
     def _get_label(self, dataset: TorchDataset, idx: int):
 
         self._set_read_image(dataset, False)
+        self._set_read_id(dataset, False)
         diagnosis = dataset[idx]
         self._set_read_image(dataset, True)
+        self._set_read_id(dataset, True)
 
         return int(diagnosis)

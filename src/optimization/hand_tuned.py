@@ -17,17 +17,6 @@ EXPERIMENTS = [
                 },
             ),
             (
-                "resize",
-                {
-                    "width": TEST_IMAGE_WIDTH,
-                    "height": TEST_IMAGE_HEIGHT,
-                },
-            ),
-            (
-                "normalize_left_right",
-                {},
-            ),
-            (
                 "bens",
                 {
                     "image_weight": 4,
@@ -40,8 +29,8 @@ EXPERIMENTS = [
             (
                 "resize",
                 {
-                    "width": 300,
-                    "height": 300,
+                    "width": 256,
+                    "height": 256,
                 },
             ),
             (
@@ -57,9 +46,9 @@ EXPERIMENTS = [
         ],
         model=("resnet18", {"num_classes": 5, "pretrained": True}),
         batch_size=100,
-        optimzier=("Adam", {"lr": 1e-5}),
+        optimizer=("Adam", {"lr": 1e-5}),
         test_size=0.2,
-        max_epochs=70,
+        max_epochs=60,
         sampler=("ImbalancedAPTOSDatasetSampler", {})
     ),
 ]
