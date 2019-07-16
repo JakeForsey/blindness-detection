@@ -42,8 +42,9 @@ EXPERIMENTS = [
         # data set size
         augmentation_stages=[
             ("rotate", {"limit": (-10, 10), "p": 0.2}),
-            ("grid_distort", {"p": 0.2}),
+            ("grid_distort", {"p": 0.1, "distort_limit": 0.1}),
             ("brightness_contrast", {"p": 0.3, "contrast_limit": 0.3, "brightness_limit": 0.3}),
+            ("crop", {"p": 0.4, "min_max_height": (200, 256), "height": 256, "width": 256, "w2h_ratio": 1.0})
         ],
         train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],

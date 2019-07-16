@@ -52,6 +52,7 @@ AUGMENTATION_STAGES = {
     "rotate": albumentations.Rotate,
     "grid_distort": albumentations.GridDistortion,
     "brightness_contrast": albumentations.RandomBrightnessContrast,
+    "crop": albumentations.RandomSizedCrop
 }
 
 
@@ -142,6 +143,7 @@ class Experiment:
             max_epochs=state_dict["pipeline_stages"],
             sampler=(state_dict["sampler"], state_dict["sampler_kwargs"]),
             description=state_dict["description"],
+            augmentation_stages=state_dict["augmentation_stages"]
         )
 
     def to_json(self):
@@ -162,5 +164,6 @@ class Experiment:
             "max_epochs": self._max_epochs,
             "test_size": self._test_size,
             "sampler": self._sampler_string,
-            "sampler_kwargs": self._sampler_kwargs
+            "sampler_kwargs": self._sampler_kwargs,
+            "augmentation_stages": self._augmentation_stages
         }
