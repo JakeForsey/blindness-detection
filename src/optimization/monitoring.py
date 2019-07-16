@@ -90,7 +90,7 @@ class APTOSMonitor:
         )
 
         self._summary_writer.add_scalar(
-            tag="f1_score_macro",
+            tag="test/f1_score_macro",
             scalar_value=f1_score(targets, predictions, average="macro"),
             global_step=self._epoch
         )
@@ -98,6 +98,14 @@ class APTOSMonitor:
         confusion_matrix_array = plot_confusion_matrix(targets, predictions, as_array=True)
         self._summary_writer.add_image(
             tag="test/confusion_matrix",
+            img_tensor=torch.from_numpy(confusion_matrix_array),
+            global_step=self._epoch,
+            dataformats="HWC"
+        )
+
+        confusion_matrix_array = plot_confusion_matrix(targets, predictions, as_array=True, normalize=True)
+        self._summary_writer.add_image(
+            tag="test/confusion_matrix_normalized",
             img_tensor=torch.from_numpy(confusion_matrix_array),
             global_step=self._epoch,
             dataformats="HWC"
