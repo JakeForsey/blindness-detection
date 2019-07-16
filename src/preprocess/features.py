@@ -1,8 +1,10 @@
+from typing import Tuple
+
 import cv2
 import numpy as np
 
 
-def bens(image: np.array, image_weight, blur_window, blur_sigma_x, blur_weight, bias):
+def bens(image: np.array, image_weight, blur_window, blur_sigma_x, blur_weight, bias, border_mask: np.ndarray, border_colour: int = 0) -> Tuple[np.ndarray, np.ndarray]:
     """
     Preprocessing step recommended here:
     https://www.kaggle.com/ratthachat/aptos-updated-preprocessing-ben-s-cropping
@@ -16,14 +18,18 @@ def bens(image: np.array, image_weight, blur_window, blur_sigma_x, blur_weight, 
     :return:
     """
 
-    return cv2.addWeighted(
+    bens_image = cv2.addWeighted(
         image, image_weight,
         cv2.GaussianBlur(image, blur_window, blur_sigma_x), blur_weight,
         bias
     )
 
+    bens_image[border_mask == 0] = border_colour
 
-def enhance_fovea(image: np.array, radius, border_tol, blur_sigma, fovea_aoi_size, width: int, height: int):
+    return bens_image, border_mask
+
+
+def enhance_fovea(image: np.array, radius, border_tol, blur_sigma, fovea_aoi_size, width: int, height: int, border_mask: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     tmp_image = image.copy()
 
     tmp_image[(tmp_image < border_tol).all(2)] = 255
@@ -48,4 +54,4 @@ def enhance_fovea(image: np.array, radius, border_tol, blur_sigma, fovea_aoi_siz
 
     image = np.concatenate([image, fovea_aoi], axis=2)
 
-    return image
+    return image, border_mask

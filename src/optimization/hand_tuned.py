@@ -17,6 +17,15 @@ EXPERIMENTS = [
                 },
             ),
             (
+                "resize_and_pad",
+                {
+                    "width": 256,
+                    "height": 256,
+                    # Matching bias in bens
+                    "border_colour": 0
+                },
+            ),
+            (
                 "bens",
                 {
                     "image_weight": 4,
@@ -27,11 +36,8 @@ EXPERIMENTS = [
                 },
             ),
             (
-                "resize",
-                {
-                    "width": 256,
-                    "height": 256,
-                },
+                "fill_dark_borders",
+                {},
             ),
             (
                 "eight_bit_normalization",
