@@ -2,7 +2,6 @@
 Submits predictions to Kaggle via a kernel.
 """
 import logging
-import os
 
 import pandas as pd
 import torch
@@ -20,20 +19,19 @@ LOGGER = logging.getLogger(__name__)
 
 
 def main(
-        experiment_id: str,
-        results_directory: str = "results",
-        input_directory: str = "../input/aptos2019-blindness-detection",
-        checkpoint_file: str = "1-checkpoint.pth"
+        checkpoint_file_path: str,
+        data_directory: str = "../input/aptos2019-blindness-detection/test_images",
+        data_frame: str = "../input/aptos2019-blindness-detection/test.csv"
 ):
     LOGGER.info("Beginning submission")
     # Always load the first iteration from cross validation? Should really re-train on the whole dataset
-    checkpoint = torch.load(os.path.join(results_directory, experiment_id, checkpoint_file))
+    checkpoint = torch.load(checkpoint_file_path)
     LOGGER.info("Loaded checkpoint")
 
     experiment_state_dict = checkpoint["experiment"]
     experiment_state_dict.update(
-        train_test_directories=[os.path.join(input_directory, "test_images")],
-        train_test_data_frames=[os.path.join(input_directory, "test.csv")]
+        train_test_directories=[data_directory],
+        train_test_data_frames=[data_frame]
     )
     experiment = Experiment.from_dict(experiment_state_dict)
     LOGGER.info("Initialised experiment: %s", experiment)
@@ -59,7 +57,7 @@ def main(
     model.load_state_dict(checkpoint['state_dict'])
     LOGGER.info("Initialised model")
 
-    LOGGER.info("Beggining inference")
+    LOGGER.info("Beginning inference")
     predictions_proba, predictions, ids = inference(model, loader, "cpu")
 
     sample = pd.DataFrame({
@@ -75,7 +73,7 @@ if __name__ == "__main__":
     LOGGER.info("Running submission with following args: %s", args)
 
     main(
-        args.experiment_id,
-        args.results_directory,
-        args.input_directory
+        args.checkpoint_file_path,
+        args.data_directory,
+        args.data_frame
     )
