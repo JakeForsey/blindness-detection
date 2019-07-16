@@ -125,10 +125,7 @@ class APTOSMonitor:
             text_string=f"{self._experiment.train_test_directories()}"
         )
 
-        normalized_images = []
-        for i in range(10):
-            normalized_image, _, _ = dataset[i]
-            normalized_images.append(torch.from_numpy(normalized_image))
+        normalized_images = [torch.from_numpy(image) for image, _, _ in [dataset[i] for i in range(10)]]
 
         self._summary_writer.add_image(
             tag=f"normalized_images",
