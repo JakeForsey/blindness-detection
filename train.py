@@ -99,6 +99,9 @@ def run_experiment(
             optimizer_class, optim_kwargs = experiment.optimizer()
             optimizer = optimizer_class(model.parameters(), **optim_kwargs)
 
+            lr_scheduler, scheduler_kwargs = experiment.lr_scheduler()
+            lr_scheduler = lr_scheduler(optimizer, **scheduler_kwargs)
+
             monitor.on_cv_start(train_ds, augmentations)
 
             for epoch in range(1, experiment.max_epochs() + 1):
@@ -106,6 +109,8 @@ def run_experiment(
                 LOGGER.info("Epoch: %s", epoch)
 
                 train(model, train_loader, optimizer, device, monitor)
+                lr_scheduler.step()
+
                 predictions_proba, predictions,  targets, ids, losses = test(model, test_loader, device, monitor)
 
                 if epoch % 2 == 0:

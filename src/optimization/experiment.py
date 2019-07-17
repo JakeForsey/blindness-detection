@@ -33,6 +33,10 @@ OPTIMIZERS = {
     "Adam": optim.Adam,
 }
 
+LR_SCHEDULERS = {
+    "ExponentialLR": optim.lr_scheduler.ExponentialLR
+}
+
 MODELS = {
     "MnistExampleV01": MnistExampleV01,
     "resnet18": resnet18,
@@ -74,6 +78,7 @@ class Experiment:
             test_size: float,
             max_epochs: int,
             sampler: Tuple[str, dict],
+            lr_scheduler: Tuple[str, dict],
             description: Optional[str] = None,
 
     ):
@@ -89,6 +94,7 @@ class Experiment:
         self._max_epochs = max_epochs
         self._test_size = test_size
         self._sampler_string, self._sampler_kwargs = sampler
+        self._lr_scheduler_string, self._lr_scheduler_kwargs = lr_scheduler
 
         if description is None:
             description = time.time()
@@ -122,6 +128,9 @@ class Experiment:
     def optimizer(self):
         return OPTIMIZERS[self._optimizer_string], self._optimizer_kwargs
 
+    def lr_scheduler(self):
+        return LR_SCHEDULERS[self._lr_scheduler_string], self._lr_scheduler_kwargs
+
     def test_size(self):
         return self._test_size
 
@@ -147,7 +156,8 @@ class Experiment:
             max_epochs=state_dict["pipeline_stages"],
             sampler=(state_dict["sampler"], state_dict["sampler_kwargs"]),
             description=state_dict["description"],
-            augmentation_stages=state_dict["augmentation_stages"]
+            augmentation_stages=state_dict["augmentation_stages"],
+            lr_scheduler=(state_dict["lr_scheduler"], state_dict["lr_scheduler_kwargs"])
         )
 
     def to_json(self):
@@ -169,5 +179,7 @@ class Experiment:
             "test_size": self._test_size,
             "sampler": self._sampler_string,
             "sampler_kwargs": self._sampler_kwargs,
-            "augmentation_stages": self._augmentation_stages
+            "augmentation_stages": self._augmentation_stages,
+            "lr_scheduler": self._lr_scheduler_string,
+            "lr_scheduler_kwargs": self._lr_scheduler_kwargs
         }

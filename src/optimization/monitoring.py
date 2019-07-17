@@ -5,6 +5,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import cohen_kappa_score
 import torch
+from torch.optim.optimizer import Optimizer
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import Dataset as TorchDataset
 
@@ -36,7 +37,15 @@ class APTOSMonitor:
             self._epoch, batch_idx * len(data), len(train_loader.dataset),
                    100. * batch_idx / len(train_loader), loss.item()))
 
-    def on_train_end(self, losses: torch.Tensor):
+    def on_train_end(self, losses: torch.Tensor, optimizer: Optimizer):
+
+        for idx, param_group in enumerate(optimizer.param_groups):
+            self._summary_writer.add_scalar(
+                tag=f"param_group/{idx}",
+                scalar_value=param_group["lr"],
+                global_step=self._epoch
+            )
+
         self._summary_writer.add_scalar(
             tag="train/loss",
             scalar_value=losses.mean(),
