@@ -5,6 +5,8 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader as TorchDataLoader
 
 from src.optimization.monitoring import APTOSMonitor
+from src.optimization.loss import QuadraticWeightedKappa
+
 
 def train(model, train_loader, optimizer, device, monitor: Optional[APTOSMonitor] = None):
     model.train()
@@ -24,7 +26,10 @@ def train(model, train_loader, optimizer, device, monitor: Optional[APTOSMonitor
         output = model(data)
         activation = F.log_softmax(output, dim=1)
 
-        loss = F.nll_loss(activation, target)
+        # loss = F.nll_loss(activation, target)
+        loss_fn = QuadraticWeightedKappa()
+        loss = loss_fn(activation, target)
+
         loss.backward()
 
         # One loss per batch
@@ -62,7 +67,9 @@ def test(model: torch.nn.Module, test_loader: TorchDataLoader, device, monitor: 
             output = model(data)
             preds_proba = F.log_softmax(output, dim=1)
 
-            loss = F.nll_loss(preds_proba, target)
+            # loss = F.nll_loss(preds_proba, target)
+            loss_fn = QuadraticWeightedKappa()
+            loss = loss_fn(preds_proba, target)
 
             preds = preds_proba.argmax(dim=1)
 

@@ -60,7 +60,7 @@ EXPERIMENTS = [
         test_size=0.2,
         max_epochs=60,
         sampler=("RandomSampler", {}),
-        lr_scheduler=("ExponentialLR", {"gamma": 0.01})
+        lr_scheduler=("ExponentialLR", {"gamma": 0.98})
     ),
 ]
 
