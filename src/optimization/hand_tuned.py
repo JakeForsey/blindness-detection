@@ -8,7 +8,7 @@ from src.optimization.experiment import Experiment
 
 EXPERIMENTS = [
     Experiment(
-        description="First submission",
+        description="Num classes fixed",
         pipeline_stages=[
             (
                 "crop_dark_borders",

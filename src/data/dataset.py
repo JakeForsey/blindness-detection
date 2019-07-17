@@ -43,19 +43,7 @@ class APTOSDataset(TorchDataset):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return image
 
-    def _to_w_h_channels(self, image: np.array):
-        return image.transpose(2, 0, 1)
-
-    def _get_image(self, index: int):
-        """
-        Get the preprocessed image  at `index` in the dataset.
-
-        :param index: index of the record to fetch
-        :return: preprocessed image
-        """
-
-        id_code = self._data_frame["id_code"][index]
-
+    def _get_image(self, id_code: str):
         image = self._load_image(id_code)
         preprocessed_image = self._preprocess_pipeline(image)
         # preprocessed_image = self._to_w_h_channels(preprocessed_image)
@@ -76,7 +64,7 @@ class APTOSDataset(TorchDataset):
     def __getitem__(self, index: int):
         result = []
         if self._read_image:
-            result.append(self._cached_get_image(index))
+            result.append(self._cached_get_image(self._data_frame["id_code"][index]))
 
         if self._read_diagnosis:
             result.append(self._get_diagnosis(index))

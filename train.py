@@ -106,7 +106,7 @@ def run_experiment(
                 train(model, train_loader, optimizer, device, monitor)
                 predictions_proba, predictions,  targets, ids, losses = test(model, test_loader, device, monitor)
 
-                if epoch % 5 == 0:
+                if epoch % 2 == 0:
                     checkpoint = {
                         'model': model,
                         'state_dict': model.state_dict(),
@@ -118,7 +118,7 @@ def run_experiment(
                     if not os.path.isdir(checkpoint_directory):
                         os.mkdir(checkpoint_directory)
 
-                    torch.save(checkpoint, os.path.join(checkpoint_directory, f'{cv_iteration}-checkpoint.pth'))
+                    torch.save(checkpoint, os.path.join(checkpoint_directory, f'{cv_iteration}-{epoch}-checkpoint.pth'))
 
             monitor.on_cv_end()
 

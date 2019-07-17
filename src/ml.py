@@ -18,7 +18,6 @@ def train(model, train_loader, optimizer, device, monitor: Optional[APTOSMonitor
 
     losses = []
     for batch_idx, (data, target, _) in enumerate(train_loader):
-
         data, target = data.to(device), target.to(device)
 
         optimizer.zero_grad()
