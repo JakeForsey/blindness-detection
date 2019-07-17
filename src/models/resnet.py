@@ -222,7 +222,7 @@ def _resnet(arch, block, layers, progress, num_classes, pretrained=False, shape=
         num_ftrs = model.fc.in_features
         model.fc = nn.Linear(num_ftrs, num_classes)
 
-    return ResNet(block, layers, shape=shape)
+    return model
 
 
 def resnet18(num_classes, shape, pretrained, progress=True, **kwargs):

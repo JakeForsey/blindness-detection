@@ -13,6 +13,7 @@ import torch
 from torch.utils.data import DataLoader as TorchDataLoader
 from torch.utils.data import ConcatDataset as TorchConcatDataset
 from torch.utils.data import random_split as torch_random_split
+from torchsummary import summary as torch_summary
 
 from src.argument_parser import parse_training_arguments
 from src.preprocess.pipeline import Pipeline
@@ -93,6 +94,7 @@ def run_experiment(
             )
 
             model = experiment.model(input_shape=train_ds[0][0].shape)
+            print(torch_summary(model.cuda(), train_ds[0][0].shape))
 
             optimizer_class, optim_kwargs = experiment.optimizer()
             optimizer = optimizer_class(model.parameters(), **optim_kwargs)

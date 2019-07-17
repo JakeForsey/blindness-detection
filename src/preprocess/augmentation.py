@@ -61,11 +61,11 @@ class AugmentedCollate:
         # TODO Handle the case when the input dataset is the submission data set (AKA no diagnoses)
         images, diagnoses, ids = zip(*data)
 
-        augmented_images = [self._augmentations(force_apply=False, image=image)["image"] for image in images]
+        augmented_images = [self._augmentations(force_apply=False, image=image.transpose(1, 2, 0))["image"] for image in images]
 
         # Use the default_collate after augmentation
         return default_collate(
-            [(image, diagnosis, id_) for image, diagnosis, id_ in zip(augmented_images, diagnoses, ids)]
+            [(image.transpose(2, 0, 1), diagnosis, id_) for image, diagnosis, id_ in zip(augmented_images, diagnoses, ids)]
         )
 
     @staticmethod
