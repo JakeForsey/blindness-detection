@@ -35,7 +35,8 @@ def train(model, train_loader, optimizer, device, monitor: Optional[APTOSMonitor
         monitor.on_train_batch_end(batch_idx, data, train_loader, loss)
 
     losses = torch.stack(losses)
-    monitor.on_train_end(losses)
+
+    monitor.on_train_end(losses, optimizer)
 
 
 def test(model: torch.nn.Module, test_loader: TorchDataLoader, device, monitor: Optional[APTOSMonitor] = None):
