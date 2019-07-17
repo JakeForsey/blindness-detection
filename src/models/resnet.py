@@ -211,7 +211,7 @@ class ResNet(nn.Module):
 
 
 def _resnet(arch, block, layers, progress, num_classes, pretrained=False, shape=None, **kwargs):
-    model = ResNet(block, layers, shape=shape, **kwargs)
+    model = ResNet(block, layers, shape=shape, num_classes=num_classes, **kwargs)
 
     if pretrained:
         state_dict = load_url(MODEL_URLS[arch], progress=progress)
@@ -222,7 +222,7 @@ def _resnet(arch, block, layers, progress, num_classes, pretrained=False, shape=
         num_ftrs = model.fc.in_features
         model.fc = nn.Linear(num_ftrs, num_classes)
 
-    return ResNet(block, layers, shape=shape)
+    return model
 
 
 def resnet18(num_classes, shape, pretrained, progress=True, **kwargs):

@@ -13,6 +13,7 @@ import torch
 from torch.utils.data import DataLoader as TorchDataLoader
 from torch.utils.data import ConcatDataset as TorchConcatDataset
 from torch.utils.data import random_split as torch_random_split
+from torchsummary import summary as torch_summary
 
 from src.argument_parser import parse_training_arguments
 from src.preprocess.pipeline import Pipeline
@@ -93,6 +94,7 @@ def run_experiment(
             )
 
             model = experiment.model(input_shape=train_ds[0][0].shape)
+            print(torch_summary(model.cuda(), train_ds[0][0].shape))
 
             optimizer_class, optim_kwargs = experiment.optimizer()
             optimizer = optimizer_class(model.parameters(), **optim_kwargs)
@@ -106,7 +108,7 @@ def run_experiment(
                 train(model, train_loader, optimizer, device, monitor)
                 predictions_proba, predictions,  targets, ids, losses = test(model, test_loader, device, monitor)
 
-                if epoch % 5 == 0:
+                if epoch % 2 == 0:
                     checkpoint = {
                         'model': model,
                         'state_dict': model.state_dict(),
@@ -118,7 +120,7 @@ def run_experiment(
                     if not os.path.isdir(checkpoint_directory):
                         os.mkdir(checkpoint_directory)
 
-                    torch.save(checkpoint, os.path.join(checkpoint_directory, f'{cv_iteration}-checkpoint.pth'))
+                    torch.save(checkpoint, os.path.join(checkpoint_directory, f'{cv_iteration}-{epoch}-checkpoint.pth'))
 
             monitor.on_cv_end()
 
