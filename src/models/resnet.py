@@ -211,7 +211,7 @@ class ResNet(nn.Module):
 
 
 def _resnet(arch, block, layers, progress, num_classes, pretrained=False, shape=None, **kwargs):
-    model = ResNet(block, layers, shape=shape, **kwargs)
+    model = ResNet(block, layers, shape=shape, num_classes=num_classes, **kwargs)
 
     if pretrained:
         state_dict = load_url(MODEL_URLS[arch], progress=progress)
