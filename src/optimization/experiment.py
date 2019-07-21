@@ -62,7 +62,8 @@ AUGMENTATION_STAGES = {
     "rotate": albumentations.Rotate,
     "grid_distort": albumentations.GridDistortion,
     "brightness_contrast": albumentations.RandomBrightnessContrast,
-    "crop": albumentations.RandomSizedCrop
+    "crop": albumentations.RandomSizedCrop,
+    "horizontal_flip": albumentations.HorizontalFlip
 }
 
 
