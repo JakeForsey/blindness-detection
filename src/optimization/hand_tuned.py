@@ -11,20 +11,34 @@ EXPERIMENTS = [
         description="Num classes fixed",
         pipeline_stages=[
             (
-                "crop_dark_borders",
+                "crop_radius",
                 {
-                    "tol": 10,
-                },
+                    "width_proportion": 0.8,
+                    "height_proportion": 0.9
+                }
             ),
             (
-                "resize_and_pad",
+                "resize",
                 {
                     "width": 256,
                     "height": 256,
-                    # Matching bias in bens
-                    "border_colour": 0
                 },
             ),
+            #(
+            #    "crop_dark_borders",
+            #    {
+            #        "tol": 10,
+            #    },
+            #),
+            #(
+            #    "resize_and_pad",
+            #    {
+            #        "width": 256,
+            #        "height": 256,
+            #        # Matching bias in bens
+            #        "border_colour": 0
+            #    },
+            #),
             (
                 "bens",
                 {
@@ -47,6 +61,7 @@ EXPERIMENTS = [
         # Introduce slight variations into training cycle in an attempt to increase
         # data set size
         augmentation_stages=[
+            # ("none", {})
             ("rotate", {"limit": (-10, 10), "p": 0.2}),
             ("grid_distort", {"p": 0.1, "distort_limit": 0.1}),
             ("brightness_contrast", {"p": 0.3, "contrast_limit": 0.3, "brightness_limit": 0.3}),
@@ -56,11 +71,11 @@ EXPERIMENTS = [
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],
         model=("resnet18", {"num_classes": 5, "pretrained": True}),
         batch_size=32,
-        optimizer=("Adam", {"lr": 1e-5}),
+        optimizer=("Adam", {"lr": 5e-6}),
         test_size=0.2,
         max_epochs=60,
-        sampler=("RandomSampler", {}),
-        lr_scheduler=("ExponentialLR", {"gamma": 0.01})
+        sampler=("ImbalancedAPTOSDatasetSampler", {}),
+        lr_scheduler=("ExponentialLR", {"gamma": 0.98})
     ),
 ]
 
