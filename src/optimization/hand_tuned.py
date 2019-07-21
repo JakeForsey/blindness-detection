@@ -24,6 +24,21 @@ EXPERIMENTS = [
                     "height": 256,
                 },
             ),
+            #(
+            #    "crop_dark_borders",
+            #    {
+            #        "tol": 10,
+            #    },
+            #),
+            #(
+            #    "resize_and_pad",
+            #    {
+            #        "width": 256,
+            #        "height": 256,
+            #        # Matching bias in bens
+            #        "border_colour": 0
+            #    },
+            #),
             (
                 "bens",
                 {
@@ -57,7 +72,7 @@ EXPERIMENTS = [
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],
         model=("resnet18", {"num_classes": 5, "pretrained": True}),
         batch_size=32,
-        optimizer=("Adam", {"lr": 1e-5}),
+        optimizer=("Adam", {"lr": 5e-6}),
         test_size=0.2,
         max_epochs=100,
         sampler=("ImbalancedAPTOSDatasetSampler", {}),
