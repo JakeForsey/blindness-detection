@@ -69,10 +69,15 @@ def run_experiment(
             LOGGER.info(f'tensorboard --logdir "{monitor._summary_writer.log_dir}"')
 
             test_size = experiment.test_size()
+
+
             train_ds, test_ds = torch_random_split(
                 dataset,
                 [round((1 - test_size) * len(dataset)), round(test_size * len(dataset))]
             )
+
+            print("train data size: {}". format(train_ds.__len__()))
+            print("test data size: {}". format(test_ds.__len__()))
 
             sampler, sampler_kwargs = experiment.sampler()
             sampler = sampler(train_ds, **sampler_kwargs)

@@ -52,12 +52,12 @@ EXPERIMENTS = [
             ("brightness_contrast", {"p": 0.3, "contrast_limit": 0.3, "brightness_limit": 0.3}),
             ("crop", {"p": 0.4, "min_max_height": (200, 256), "height": 256, "width": 256, "w2h_ratio": 1.0})
         ],
-        train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
-        train_test_directories=["data/aptos2019-blindness-detection/train_images"],
+        train_test_data_frames=["/home/giotza01/datasets/aptos2019-blindness-detection/train.csv"],
+        train_test_directories=["/home/giotza01/datasets/aptos2019-blindness-detection/train_images"],
         model=("resnet18", {"num_classes": 5, "pretrained": True}),
-        batch_size=32,
+        batch_size=64,
         optimizer=("Adam", {"lr": 1e-5}),
-        test_size=0.2,
+        test_size=0.4,
         max_epochs=60,
         sampler=("RandomSampler", {}),
         lr_scheduler=("ExponentialLR", {"gamma": 0.98})

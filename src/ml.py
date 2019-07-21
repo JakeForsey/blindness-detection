@@ -26,9 +26,9 @@ def train(model, train_loader, optimizer, device, monitor: Optional[APTOSMonitor
         output = model(data)
         activation = F.log_softmax(output, dim=1)
 
-        # loss = F.nll_loss(activation, target)
-        loss_fn = QuadraticWeightedKappa()
-        loss = loss_fn(activation, target)
+        loss = F.nll_loss(activation, target)
+        #loss_fn = QuadraticWeightedKappa()
+        #loss = loss_fn(activation, target)
 
         loss.backward()
 
