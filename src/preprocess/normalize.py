@@ -2,6 +2,7 @@ from typing import Tuple
 
 import cv2
 import numpy as np
+from scipy.ndimage.morphology import distance_transform_edt
 
 
 def eight_bit_normalization(image: np.ndarray, border_mask: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -75,6 +76,42 @@ def crop_dark_borders(image: np.ndarray, tol: int, border_mask: np.ndarray) -> T
     mask = image > tol
     mask = mask.any(2)
     return image[np.ix_(mask.any(1), mask.any(0))], border_mask[np.ix_(mask.any(1), mask.any(0))]
+
+
+def crop_radius(image: np.ndarray, border_mask: np.ndarray, width_proportion: float, height_proportion: float) -> Tuple[np.ndarray, np.ndarray]:
+
+    # Ensure that the mask has no data in the corners
+    border_with_corners = border_mask.copy()
+    # Top left
+    border_with_corners[(0, 0)] = (0, 0, 0)
+    # Top right
+    border_with_corners[(0, border_with_corners.shape[1] - 1)] = (0, 0, 0)
+    # Bottom left
+    border_with_corners[(border_with_corners.shape[0] - 1, 0)] = (0, 0, 0)
+    # Bottom right
+    border_with_corners[(border_with_corners.shape[0] - 1, border_with_corners.shape[1] - 1)] = (0, 0, 0)
+
+    distance = distance_transform_edt(border_with_corners.any(2))
+
+    # The centre of the eye is where the distance from all the edges / corners is the greatest
+    (centre_x, centre_y) = np.unravel_index(np.argmax(distance, axis=None), distance.shape)
+    # The radius of the eye is the distance from the centre to the edges / corners
+    radius = distance[(centre_x, centre_y)]
+
+    # Resize the radius is x and y using provided parameters
+    resized_radius_y = int(round(radius * height_proportion))
+    resized_radius_x = int(round(radius * width_proportion))
+
+    x_start = max(0, centre_x - resized_radius_x)
+    x_end = min(image.shape[0], centre_x + resized_radius_x)
+
+    y_start = max(0, centre_y - resized_radius_y)
+    y_end = min(image.shape[1], centre_y + resized_radius_y)
+
+    out_image, out_mask = image[x_start: x_end, y_start: y_end], \
+           border_mask[x_start: x_end, y_start: y_end]
+
+    return out_image, out_mask
 
 
 def normalize_left_right(image: np.ndarray, border_mask: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:

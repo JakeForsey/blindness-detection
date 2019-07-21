@@ -14,6 +14,7 @@ from torch.utils.data.sampler import RandomSampler
 from src.models.mnist import MnistExampleV01
 from src.models.resnet import resnet18
 from src.preprocess.normalize import crop_dark_borders
+from src.preprocess.normalize import crop_radius
 from src.preprocess.normalize import fill_dark_borders
 from src.preprocess.normalize import eight_bit_normalization
 from src.preprocess.normalize import resize
@@ -44,6 +45,7 @@ MODELS = {
 
 PIPELINE_STAGES = {
     "crop_dark_borders": crop_dark_borders,
+    "crop_radius": crop_radius,
     "fill_dark_borders": fill_dark_borders,
     "resize": resize,
     "resize_and_pad": resize_and_pad,
