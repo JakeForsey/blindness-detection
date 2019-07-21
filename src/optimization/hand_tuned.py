@@ -14,7 +14,7 @@ EXPERIMENTS = [
                 "crop_radius",
                 {
                     "width_proportion": 0.8,
-                    "height_proportion": 0.9
+                    "height_proportion": 0.8
                 }
             ),
             (
@@ -24,21 +24,6 @@ EXPERIMENTS = [
                     "height": 256,
                 },
             ),
-            #(
-            #    "crop_dark_borders",
-            #    {
-            #        "tol": 10,
-            #    },
-            #),
-            #(
-            #    "resize_and_pad",
-            #    {
-            #        "width": 256,
-            #        "height": 256,
-            #        # Matching bias in bens
-            #        "border_colour": 0
-            #    },
-            #),
             (
                 "bens",
                 {
@@ -63,6 +48,7 @@ EXPERIMENTS = [
         augmentation_stages=[
             # ("none", {})
             ("rotate", {"limit": (-10, 10), "p": 0.2}),
+            ("horizontal_flip", {}),
             ("grid_distort", {"p": 0.1, "distort_limit": 0.1}),
             ("brightness_contrast", {"p": 0.3, "contrast_limit": 0.3, "brightness_limit": 0.3}),
             ("crop", {"p": 0.4, "min_max_height": (200, 256), "height": 256, "width": 256, "w2h_ratio": 1.0})
@@ -71,9 +57,9 @@ EXPERIMENTS = [
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],
         model=("resnet18", {"num_classes": 5, "pretrained": True}),
         batch_size=32,
-        optimizer=("Adam", {"lr": 5e-6}),
+        optimizer=("Adam", {"lr": 1e-5}),
         test_size=0.2,
-        max_epochs=60,
+        max_epochs=100,
         sampler=("ImbalancedAPTOSDatasetSampler", {}),
         lr_scheduler=("ExponentialLR", {"gamma": 0.98})
     ),
