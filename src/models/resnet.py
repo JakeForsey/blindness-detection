@@ -13,6 +13,7 @@ from src.exceptions import IncompatibleExperimentConfiguration
 
 MODEL_URLS = {
     'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
+    'resnext101_32x8d': 'https://download.pytorch.org/models/resnext101_32x8d-8ba56ff5.pth',
 }
 
 
@@ -246,6 +247,7 @@ def resnet18(num_classes, shape, pretrained, progress=True, **kwargs):
         progress,
         shape=shape,
         num_classes=num_classes,
+        pretrained=pretrained
         **kwargs,
     )
 
@@ -259,5 +261,8 @@ def resnext101_32x8d(num_classes, shape, pretrained, progress=True, **kwargs):
     """
     kwargs['groups'] = 32
     kwargs['width_per_group'] = 8
+    print(kwargs)
+    print(num_classes)
+
     return _resnet('resnext101_32x8d', Bottleneck, [3, 4, 23, 3],
-                   pretrained, progress, shape=shape, num_classes=num_classes, **kwargs)
+                   pretrained=pretrained, progress=progress, shape=shape, num_classes=num_classes, **kwargs)
