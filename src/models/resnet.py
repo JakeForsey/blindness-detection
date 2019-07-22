@@ -212,9 +212,10 @@ class ResNet(nn.Module):
 
 
 def _resnet(arch, block, layers, progress, num_classes, pretrained=False, shape=None, **kwargs):
-    model = ResNet(block, layers, shape=shape, num_classes=num_classes, **kwargs)
 
     if pretrained:
+        model = ResNet(block, layers, shape=shape, **kwargs)
+
         state_dict = load_url(MODEL_URLS[arch], progress=progress)
         model.load_state_dict(state_dict)
 
@@ -222,6 +223,8 @@ def _resnet(arch, block, layers, progress, num_classes, pretrained=False, shape=
         # classification problem
         num_ftrs = model.fc.in_features
         model.fc = nn.Linear(num_ftrs, num_classes)
+    else:
+        model = ResNet(block, layers, shape=shape, num_classes=num_classes, **kwargs)
 
     return model
 
