@@ -264,7 +264,6 @@ def resnext101_32x8d(num_classes, shape, pretrained, progress=True, **kwargs):
     """
     kwargs['groups'] = 32
     kwargs['width_per_group'] = 8
-
     return _resnet(
         'resnext101_32x8d',
         Bottleneck,
