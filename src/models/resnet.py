@@ -250,7 +250,7 @@ def resnet18(num_classes, shape, pretrained, progress=True, **kwargs):
         progress,
         shape=shape,
         num_classes=num_classes,
-        pretrained=pretrained
+        pretrained=pretrained,
         **kwargs,
     )
 
@@ -264,8 +264,13 @@ def resnext101_32x8d(num_classes, shape, pretrained, progress=True, **kwargs):
     """
     kwargs['groups'] = 32
     kwargs['width_per_group'] = 8
-    print(kwargs)
-    print(num_classes)
-
-    return _resnet('resnext101_32x8d', Bottleneck, [3, 4, 23, 3],
-                   pretrained=pretrained, progress=progress, shape=shape, num_classes=num_classes, **kwargs)
+    return _resnet(
+        'resnext101_32x8d',
+        Bottleneck,
+        [3, 4, 23, 3],
+        pretrained=pretrained,
+        progress=progress,
+        shape=shape,
+        num_classes=num_classes,
+        **kwargs
+    )
