@@ -29,6 +29,7 @@ from src.optimization.monitoring import APTOSMonitor
 from src.ml import train
 from src.ml import test
 from sklearn.model_selection import StratifiedShuffleSplit
+from src.optimization.loss import Kgbloss
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
