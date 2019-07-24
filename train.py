@@ -2,6 +2,7 @@
 """
 Searches models and hyper parameters.
 """
+import numpy as np
 import logging
 import os
 import sqlite3
@@ -14,6 +15,8 @@ from torch.utils.data import DataLoader as TorchDataLoader
 from torch.utils.data import ConcatDataset as TorchConcatDataset
 from torch.utils.data import random_split as torch_random_split
 from torchsummary import summary as torch_summary
+from torch.utils.data import Subset
+
 
 from src.argument_parser import parse_training_arguments
 from src.preprocess.pipeline import Pipeline
@@ -25,6 +28,7 @@ from src.optimization.result import Result
 from src.optimization.monitoring import APTOSMonitor
 from src.ml import train
 from src.ml import test
+from sklearn.model_selection import StratifiedShuffleSplit
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -41,7 +45,9 @@ def run_experiment(
 ) -> List[Result]:
     LOGGER.info("Beginning experiment: %s, %s", experiment.id(), experiment.description())
 
+    #preprocessing
     pipeline = Pipeline(experiment.pipeline_stages(), debug=debug_pipeline)
+    #augmentations
     augmentations = AugmentedCollate(experiment.augmentation_stages())
 
     dfs = experiment.train_test_data_frames()
@@ -53,31 +59,49 @@ def run_experiment(
     LOGGER.info("Initialised cache: %s", cache)
 
     LOGGER.info("Creating APTOSDataset for the following directories: %s", directories)
+
+
     dataset = TorchConcatDataset(
         [APTOSDataset(df, directory, pipeline, cache) for df, directory in zip(dfs, directories)]
     )
+
     # To facilitate software development this makes running end to end tests feasible
     if develop_mode:
         LOGGER.warn("Running in develop mode, using a fraction of the whole dataset")
         dataset, _ = torch_random_split(dataset, [develop_mode_sampls, len(dataset) - develop_mode_sampls])
 
     results = []
-    for cv_iteration in range(1,  cross_validation_iterations + 1):
+
+    # Stratified ShuffleSplit cross-validator, Provides train/test indices to split data in train/test sets.
+    sss = StratifiedShuffleSplit(n_splits=cross_validation_iterations,
+                                 test_size=experiment.test_size(),
+                                 train_size=1-experiment.test_size(),
+                                 random_state=0)
+    #TODO: will probably need debugging when more than one datasets are added
+    labels = np.asarray([x for x in dfs[0]["diagnosis"]])
+    split_generator=sss.split(np.zeros(labels.shape), labels)
+
+    for cv_iteration, (train_index, test_index) in zip(range(1,  cross_validation_iterations + 1), split_generator):
         LOGGER.info("Cross validation iteration: %s", cv_iteration)
 
         with APTOSMonitor(experiment, cv_iteration) as monitor:
             LOGGER.info(f'tensorboard --logdir "{monitor._summary_writer.log_dir}"')
 
-            test_size = experiment.test_size()
-
-
-            train_ds, test_ds = torch_random_split(
-                dataset,
-                [round((1 - test_size) * len(dataset)), round(test_size * len(dataset))]
-            )
+            if experiment.dataset_split()=="stratified":
+                test_ds = Subset(dataset, test_index)
+                train_ds = Subset(dataset, train_index)
+            else:
+                test_size = experiment.test_size()
+                train_ds, test_ds = torch_random_split(
+                    dataset,
+                    [round((1 - test_size) * len(dataset)), round(test_size * len(dataset))]
+                )
 
             print("train data size: {}". format(train_ds.__len__()))
+            print(np.histogram(labels[train_index], 5))
+
             print("test data size: {}". format(test_ds.__len__()))
+            print(np.histogram(labels[test_index], 5))
 
             sampler, sampler_kwargs = experiment.sampler()
             sampler = sampler(train_ds, **sampler_kwargs)

@@ -76,6 +76,7 @@ class Experiment:
             batch_size: int,
             optimizer: Tuple[str, dict],
             test_size: float,
+            dataset_split: str,
             max_epochs: int,
             sampler: Tuple[str, dict],
             lr_scheduler: Tuple[str, dict],
@@ -92,6 +93,7 @@ class Experiment:
         self._batch_size = batch_size
         self._optimizer_string, self._optimizer_kwargs = optimizer
         self._max_epochs = max_epochs
+        self._dataset_split = dataset_split
         self._test_size = test_size
         self._sampler_string, self._sampler_kwargs = sampler
         self._lr_scheduler_string, self._lr_scheduler_kwargs = lr_scheduler
@@ -133,6 +135,9 @@ class Experiment:
 
     def test_size(self):
         return self._test_size
+
+    def dataset_split(self):
+        return self._dataset_split
 
     def max_epochs(self):
         return self._max_epochs

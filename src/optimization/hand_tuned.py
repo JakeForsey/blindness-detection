@@ -5,7 +5,6 @@ from src.constants import TEST_IMAGE_HEIGHT
 from src.optimization.base import ExperimentGenerator
 from src.optimization.experiment import Experiment
 
-
 EXPERIMENTS = [
     Experiment(
         description="Num classes fixed",
@@ -58,6 +57,7 @@ EXPERIMENTS = [
         batch_size=64,
         optimizer=("Adam", {"lr": 1e-5}),
         test_size=0.4,
+        dataset_split="stratified",
         max_epochs=60,
         sampler=("RandomSampler", {}),
         lr_scheduler=("ExponentialLR", {"gamma": 0.98})

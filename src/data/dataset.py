@@ -8,7 +8,10 @@ from torch.utils.data import Dataset as TorchDataset
 
 
 class APTOSDataset(TorchDataset):
-    def __init__(self, data_frame: pd.DataFrame, data_directory: str, preprocess_pipeline, cache: joblib.Memory = None):
+    def __init__(self, data_frame: pd.DataFrame,
+                 data_directory: str,
+                 preprocess_pipeline,
+                 cache: joblib.Memory = None):
         super().__init__()
         self._data_frame = data_frame
         self._data_directory = data_directory
