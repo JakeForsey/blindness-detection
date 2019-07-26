@@ -58,9 +58,9 @@ EXPERIMENTS = [
         optimizer=("Adam", {"lr": 1e-5}),
         test_size=0.4,
         dataset_split="stratified",
-        max_epochs=60,
+        max_epochs=120,
         sampler=("RandomSampler", {}),
-        lr_scheduler=("ExponentialLR", {"gamma": 0.98})
+        lr_scheduler=("ExponentialLR", {"gamma": 0.99})
     ),
 ]
 

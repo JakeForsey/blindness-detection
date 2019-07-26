@@ -8,7 +8,7 @@ from src.optimization.monitoring import APTOSMonitor
 from src.optimization.loss import QuadraticWeightedKappa
 
 
-def train(model, train_loader, optimizer, device, monitor: Optional[APTOSMonitor] = None):
+def train(model, train_loader, optimizer, device,criterion, monitor: Optional[APTOSMonitor] = None):
     model.train()
 
     if device and torch.cuda.is_available():
@@ -24,11 +24,14 @@ def train(model, train_loader, optimizer, device, monitor: Optional[APTOSMonitor
 
         optimizer.zero_grad()
         output = model(data)
-        activation = F.log_softmax(output, dim=1)
 
-        loss = F.nll_loss(activation, target)
+        #activation = F.log_softmax(output, dim=1)
+
+        #loss = F.nll_loss(activation, target)
         #loss_fn = QuadraticWeightedKappa()
         #loss = loss_fn(activation, target)
+
+        loss=criterion(output, target)
 
         loss.backward()
 
@@ -44,7 +47,7 @@ def train(model, train_loader, optimizer, device, monitor: Optional[APTOSMonitor
     monitor.on_train_end(losses, optimizer)
 
 
-def test(model: torch.nn.Module, test_loader: TorchDataLoader, device, monitor: Optional[APTOSMonitor] = None):
+def test(model: torch.nn.Module, test_loader: TorchDataLoader, device,criterion, monitor: Optional[APTOSMonitor] = None):
     model.eval()
 
     if device and torch.cuda.is_available():
@@ -68,8 +71,10 @@ def test(model: torch.nn.Module, test_loader: TorchDataLoader, device, monitor: 
             preds_proba = F.log_softmax(output, dim=1)
 
             # loss = F.nll_loss(preds_proba, target)
-            loss_fn = QuadraticWeightedKappa()
-            loss = loss_fn(preds_proba, target)
+            #loss_fn = QuadraticWeightedKappa()
+            #loss = loss_fn(preds_proba, target)
+
+            loss = criterion(output, target)
 
             preds = preds_proba.argmax(dim=1)
 

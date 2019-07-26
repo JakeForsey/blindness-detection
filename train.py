@@ -29,7 +29,7 @@ from src.optimization.monitoring import APTOSMonitor
 from src.ml import train
 from src.ml import test
 from sklearn.model_selection import StratifiedShuffleSplit
-from src.optimization.loss import Kgbloss
+from src.optimization.loss import Kgbloss, FocalLoss
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -133,15 +133,16 @@ def run_experiment(
             lr_scheduler = lr_scheduler(optimizer, **scheduler_kwargs)
 
             monitor.on_cv_start(train_ds, augmentations)
+            criterion = FocalLoss( num_class=5,  gamma=2)
 
             for epoch in range(1, experiment.max_epochs() + 1):
 
                 LOGGER.info("Epoch: %s", epoch)
 
-                train(model, train_loader, optimizer, device, monitor)
+                train(model, train_loader, optimizer, device, criterion, monitor)
                 lr_scheduler.step()
 
-                predictions_proba, predictions,  targets, ids, losses = test(model, test_loader, device, monitor)
+                predictions_proba, predictions,  targets, ids, losses = test(model, test_loader, device, criterion, monitor)
 
                 if epoch % 2 == 0:
                     checkpoint = {
