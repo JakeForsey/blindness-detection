@@ -29,7 +29,7 @@ from src.optimization.monitoring import APTOSMonitor
 from src.ml import train
 from src.ml import test
 from sklearn.model_selection import StratifiedShuffleSplit
-from src.optimization.loss import Kgbloss, FocalLoss
+from src.optimization.loss import  FocalLoss
 
 LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -98,11 +98,11 @@ def run_experiment(
                     [round((1 - test_size) * len(dataset)), round(test_size * len(dataset))]
                 )
 
-            print("train data size: {}". format(train_ds.__len__()))
-            print(np.histogram(labels[train_index], 5))
+            LOGGER.info("train data size: {}". format(train_ds.__len__()))
+            LOGGER.info("Histogram of classses {}".format(np.histogram(labels[train_index], 5)))
 
-            print("test data size: {}". format(test_ds.__len__()))
-            print(np.histogram(labels[test_index], 5))
+            LOGGER.info("test data size: {}". format(test_ds.__len__()))
+            LOGGER.info("Histogram of classses {}".format(np.histogram(labels[test_index], 5)))
 
             sampler, sampler_kwargs = experiment.sampler()
             sampler = sampler(train_ds, **sampler_kwargs)
@@ -133,7 +133,9 @@ def run_experiment(
             lr_scheduler = lr_scheduler(optimizer, **scheduler_kwargs)
 
             monitor.on_cv_start(train_ds, augmentations)
-            criterion = FocalLoss( num_class=5,  gamma=2)
+
+            #add parameter alpha for class weights
+            criterion = FocalLoss(num_class=5,  gamma=2)
 
             for epoch in range(1, experiment.max_epochs() + 1):
 

@@ -1,16 +1,14 @@
 import numpy as np
-import torch
 from torch.nn.modules.loss import _Loss
-from sklearn.metrics import cohen_kappa_score
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
 
-class Focaloss_test(torch.nn.Module):
+class Focaloss_experimental(torch.nn.Module):
     def __init__(self, gamma=0, alpha=None, size_average=True):
-        super(Focaloss_test, self).__init__()
+        super(Focaloss_experimental, self).__init__()
         self.gamma = gamma
         self.alpha = alpha
         if isinstance(alpha,(float,int)): self.alpha = torch.Tensor([alpha,1-alpha])
