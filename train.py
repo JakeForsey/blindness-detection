@@ -100,6 +100,8 @@ def run_experiment(
 
             LOGGER.info("train data size: {}". format(train_ds.__len__()))
             LOGGER.info("Histogram of classses {}".format(np.histogram(labels[train_index], 5)))
+            class_data = np.histogram(labels[train_index], 5)[0]
+            class_weights = class_data.sum() / (class_data.shape[0] * class_data)
 
             LOGGER.info("test data size: {}". format(test_ds.__len__()))
             LOGGER.info("Histogram of classses {}".format(np.histogram(labels[test_index], 5)))
@@ -135,7 +137,7 @@ def run_experiment(
             monitor.on_cv_start(train_ds, augmentations)
 
             #add parameter alpha for class weights
-            criterion = FocalLoss(num_class=5,  gamma=2)
+            criterion = FocalLoss(num_class=5,  gamma=2, alpha=class_weights)
 
             for epoch in range(1, experiment.max_epochs() + 1):
 
