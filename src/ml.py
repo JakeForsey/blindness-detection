@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader as TorchDataLoader
 
 from src.optimization.monitoring import APTOSMonitor
 
+
 def train(model, train_loader, optimizer, device, monitor: Optional[APTOSMonitor] = None):
     model.train()
 
@@ -103,7 +104,7 @@ def inference(model: torch.nn.Module, loader: TorchDataLoader, device):
     ids = []
     with torch.no_grad():
         for batch_idx, (data, id_code) in enumerate(loader):
-            print(batch_idx)
+            print(f"Batch {batch_idx}")
             data = data.to(device)
 
             output = model(data)
