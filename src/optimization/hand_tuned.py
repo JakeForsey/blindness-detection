@@ -57,7 +57,6 @@ EXPERIMENTS = [
         batch_size=64,
         optimizer=("Adam", {"lr": 1e-5 , "weight_decay": 0.00001}),
         test_size=0.4,
-        dataset_split="stratified",
         max_epochs=120,
         sampler=("RandomSampler", {}),
         lr_scheduler=("ExponentialLR", {"gamma": 0.99})

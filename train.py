@@ -88,15 +88,9 @@ def run_experiment(
         with APTOSMonitor(experiment, cv_iteration) as monitor:
             LOGGER.info(f'tensorboard --logdir "{monitor._summary_writer.log_dir}"')
 
-            if experiment.dataset_split()=="stratified":
-                test_ds = Subset(dataset, test_index)
-                train_ds = Subset(dataset, train_index)
-            else:
-                test_size = experiment.test_size()
-                train_ds, test_ds = torch_random_split(
-                    dataset,
-                    [round((1 - test_size) * len(dataset)), round(test_size * len(dataset))]
-                )
+            test_ds = Subset(dataset, test_index)
+            train_ds = Subset(dataset, train_index)
+
 
             LOGGER.info("train data size: {}". format(train_ds.__len__()))
             LOGGER.info("Histogram of classses {}".format(np.histogram(labels[train_index], 5)))
