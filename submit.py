@@ -19,9 +19,12 @@ def main(
         checkpoint_file_path: str,
         data_directory: str = "../input/aptos2019-blindness-detection/test_images",
         data_frame: str = "../input/aptos2019-blindness-detection/test.csv",
-        sample_submission: str = "../input/aptos2019-blindess-detection/sample_submission.csv"
+        sample_submission: str = "../input/aptos2019-blindness-detection/sample_submission.csv",
+        device: str = "cuda:0"
 ):
     print("Beginning submission")
+    print(f"Using {device} for submissions")
+
     # Always load the first iteration from cross validation? Should really re-train on the whole dataset
     checkpoint = torch.load(checkpoint_file_path)
     print("Loaded checkpoint")
@@ -53,10 +56,11 @@ def main(
 
     model = checkpoint["model"]
     model.load_state_dict(checkpoint['state_dict'])
+
     print("Initialised model")
 
     print("Beginning inference")
-    predictions_proba, predictions, ids = inference(model, loader, "cpu")
+    predictions_proba, predictions, ids = inference(model, loader, device)
 
     sample = pd.read_csv(sample_submission)
     sample.diagnosis = predictions
@@ -71,5 +75,6 @@ if __name__ == "__main__":
     main(
         args.checkpoint_file_path,
         args.data_directory,
-        args.data_frame
+        args.data_frame,
+        args.device
     )
