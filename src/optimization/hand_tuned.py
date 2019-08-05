@@ -5,7 +5,6 @@ from src.constants import TEST_IMAGE_HEIGHT
 from src.optimization.base import ExperimentGenerator
 from src.optimization.experiment import Experiment
 
-
 EXPERIMENTS = [
     Experiment(
         description="Large images",
@@ -70,13 +69,13 @@ EXPERIMENTS = [
         ],
         train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],
-        model=("resnext101_32x8d", {"num_classes": 5, "pretrained": True}),
-        batch_size=32,
-        optimizer=("Adam", {"lr": 1e-5}),
-        test_size=0.2,
-        max_epochs=100,
-        sampler=("ImbalancedAPTOSDatasetSampler", {}),
-        lr_scheduler=("ExponentialLR", {"gamma": 0.98})
+        model=("resnet18", {"num_classes": 5, "pretrained": True}),
+        batch_size=64,
+        optimizer=("Adam", {"lr": 1e-5 , "weight_decay": 0.00001}),
+        test_size=0.4,
+        max_epochs=120,
+        sampler=("RandomSampler", {}),
+        lr_scheduler=("ExponentialLR", {"gamma": 0.99})
     ),
 ]
 

@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader as TorchDataLoader
 from src.optimization.monitoring import APTOSMonitor
 
 
-def train(model, train_loader, optimizer, device, monitor: Optional[APTOSMonitor] = None):
+def train(model, train_loader, optimizer, device,criterion, monitor: Optional[APTOSMonitor] = None):
     model.train()
 
     if device and torch.cuda.is_available():
@@ -23,9 +23,9 @@ def train(model, train_loader, optimizer, device, monitor: Optional[APTOSMonitor
 
         optimizer.zero_grad()
         output = model(data)
-        activation = F.log_softmax(output, dim=1)
 
-        loss = F.nll_loss(activation, target)
+        loss=criterion(output, target)
+
         loss.backward()
 
         # One loss per batch
@@ -40,7 +40,7 @@ def train(model, train_loader, optimizer, device, monitor: Optional[APTOSMonitor
     monitor.on_train_end(losses, optimizer)
 
 
-def test(model: torch.nn.Module, test_loader: TorchDataLoader, device, monitor: Optional[APTOSMonitor] = None):
+def test(model: torch.nn.Module, test_loader: TorchDataLoader, device,criterion, monitor: Optional[APTOSMonitor] = None):
     model.eval()
 
     if device and torch.cuda.is_available():
@@ -61,9 +61,11 @@ def test(model: torch.nn.Module, test_loader: TorchDataLoader, device, monitor: 
             target = target.to(device)
 
             output = model(data)
-            preds_proba = F.log_softmax(output, dim=1)
 
-            loss = F.nll_loss(preds_proba, target)
+            #get normalized probabilities
+            preds_proba = F.softmax(output, dim=1)
+
+            loss = criterion(output, target)
 
             preds = preds_proba.argmax(dim=1)
 
