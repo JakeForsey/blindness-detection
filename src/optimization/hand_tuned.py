@@ -7,29 +7,43 @@ from src.optimization.experiment import Experiment
 
 EXPERIMENTS = [
     Experiment(
-        description="Num classes fixed",
+        description="Large images",
         pipeline_stages=[
             (
-                "crop_dark_borders",
+                "crop_radius",
                 {
-                    "tol": 10,
-                },
+                    "width_proportion": 0.8,
+                    "height_proportion": 0.8
+                }
             ),
             (
-                "resize_and_pad",
+                "resize",
                 {
-                    "width": 256,
-                    "height": 256,
-                    # Matching bias in bens
-                    "border_colour": 0
+                    "width": 224,
+                    "height": 224,
                 },
             ),
+            #(
+            #    "crop_dark_borders",
+            #    {
+            #        "tol": 10,
+            #    },
+            #),
+            #(
+            #    "resize_and_pad",
+            #    {
+            #        "width": 256,
+            #        "height": 256,
+            #        # Matching bias in bens
+            #        "border_colour": 0
+            #    },
+            #),
             (
                 "bens",
                 {
                     "image_weight": 4,
                     "blur_window": (0, 0),
-                    "blur_sigma_x": 20,
+                    "blur_sigma_x": 22,
                     "blur_weight": -4,
                     "bias": 128,
                 },
@@ -46,10 +60,12 @@ EXPERIMENTS = [
         # Introduce slight variations into training cycle in an attempt to increase
         # data set size
         augmentation_stages=[
+            # ("none", {})
             ("rotate", {"limit": (-10, 10), "p": 0.2}),
+            ("horizontal_flip", {}),
             ("grid_distort", {"p": 0.1, "distort_limit": 0.1}),
             ("brightness_contrast", {"p": 0.3, "contrast_limit": 0.3, "brightness_limit": 0.3}),
-            ("crop", {"p": 0.4, "min_max_height": (200, 256), "height": 256, "width": 256, "w2h_ratio": 1.0})
+            ("crop", {"p": 0.4, "min_max_height": (200, 224), "height": 224, "width": 224, "w2h_ratio": 1.0})
         ],
         train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],

@@ -2,6 +2,7 @@ import argparse
 import re
 from typing import Iterable
 
+
 def range_argument(range_str: str) -> Iterable[int]:
     """
     Parse a range string in the form x-y into a python range.
@@ -28,6 +29,7 @@ def range_argument(range_str: str) -> Iterable[int]:
         )
 
     return range(frm, to+1)
+
 
 def parse_training_arguments():
     arg_parser = argparse.ArgumentParser()
@@ -69,7 +71,7 @@ def parse_training_arguments():
     arg_parser.add_argument(
         "--device",
         type=str,
-        help="Base directory in which to store results.",
+        help="Device to use for computation.",
         default="cuda:0",
         choices=["cpu", "cuda:0", "cuda:1"]
     )
@@ -106,6 +108,21 @@ def parse_submission_arguments():
         type=str,
         help="File path to the data frame with the id codes of images.",
         default="../input/aptos2019-blindness-detection/test.csv"
+    )
+
+    arg_parser.add_argument(
+        "--sample-submission",
+        type=str,
+        help="File path to the sample submission csv.",
+        default="../input/aptos2019-blindness-detection/sample_submission.csv"
+    )
+
+    arg_parser.add_argument(
+        "--device",
+        type=str,
+        help="Device to use for computation.",
+        default="cuda:0",
+        choices=["cpu", "cuda:0", "cuda:1"]
     )
 
     return arg_parser.parse_args()

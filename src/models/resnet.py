@@ -13,6 +13,7 @@ from src.exceptions import IncompatibleExperimentConfiguration
 
 MODEL_URLS = {
     'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
+    'resnext101_32x8d': 'https://download.pytorch.org/models/resnext101_32x8d-8ba56ff5.pth',
 }
 
 
@@ -211,9 +212,10 @@ class ResNet(nn.Module):
 
 
 def _resnet(arch, block, layers, progress, num_classes, pretrained=False, shape=None, **kwargs):
-    model = ResNet(block, layers, shape=shape, num_classes=num_classes, **kwargs)
 
     if pretrained:
+        model = ResNet(block, layers, shape=shape, **kwargs)
+
         state_dict = load_url(MODEL_URLS[arch], progress=progress)
         model.load_state_dict(state_dict)
 
@@ -221,6 +223,8 @@ def _resnet(arch, block, layers, progress, num_classes, pretrained=False, shape=
         # classification problem
         num_ftrs = model.fc.in_features
         model.fc = nn.Linear(num_ftrs, num_classes)
+    else:
+        model = ResNet(block, layers, shape=shape, num_classes=num_classes, **kwargs)
 
     return model
 
@@ -246,5 +250,27 @@ def resnet18(num_classes, shape, pretrained, progress=True, **kwargs):
         progress,
         shape=shape,
         num_classes=num_classes,
+        pretrained=pretrained,
         **kwargs,
+    )
+
+
+def resnext101_32x8d(num_classes, shape, pretrained, progress=True, **kwargs):
+    r"""ResNeXt-101 32x8d model from
+    `"Aggregated Residual Transformation for Deep Neural Networks" <https://arxiv.org/pdf/1611.05431.pdf>`_
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet
+        progress (bool): If True, displays a progress bar of the download to stderr
+    """
+    kwargs['groups'] = 32
+    kwargs['width_per_group'] = 8
+    return _resnet(
+        'resnext101_32x8d',
+        Bottleneck,
+        [3, 4, 23, 3],
+        pretrained=pretrained,
+        progress=progress,
+        shape=shape,
+        num_classes=num_classes,
+        **kwargs
     )

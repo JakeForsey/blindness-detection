@@ -13,7 +13,9 @@ from torch.utils.data.sampler import RandomSampler
 
 from src.models.mnist import MnistExampleV01
 from src.models.resnet import resnet18
+from src.models.resnet import resnext101_32x8d
 from src.preprocess.normalize import crop_dark_borders
+from src.preprocess.normalize import crop_radius
 from src.preprocess.normalize import fill_dark_borders
 from src.preprocess.normalize import eight_bit_normalization
 from src.preprocess.normalize import resize
@@ -40,10 +42,12 @@ LR_SCHEDULERS = {
 MODELS = {
     "MnistExampleV01": MnistExampleV01,
     "resnet18": resnet18,
+    "resnext101_32x8d": resnext101_32x8d
 }
 
 PIPELINE_STAGES = {
     "crop_dark_borders": crop_dark_borders,
+    "crop_radius": crop_radius,
     "fill_dark_borders": fill_dark_borders,
     "resize": resize,
     "resize_and_pad": resize_and_pad,
@@ -60,7 +64,8 @@ AUGMENTATION_STAGES = {
     "rotate": albumentations.Rotate,
     "grid_distort": albumentations.GridDistortion,
     "brightness_contrast": albumentations.RandomBrightnessContrast,
-    "crop": albumentations.RandomSizedCrop
+    "crop": albumentations.RandomSizedCrop,
+    "horizontal_flip": albumentations.HorizontalFlip
 }
 
 
