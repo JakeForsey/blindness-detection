@@ -74,7 +74,8 @@ if __name__ == "__main__":
 
     main(
         args.checkpoint_file_path,
-        args.data_directory,
-        args.data_frame,
-        args.device
+        data_directory=args.data_directory,
+        data_frame=args.data_frame,
+        sample_submission=args.sample_submission,
+        device=args.device
     )

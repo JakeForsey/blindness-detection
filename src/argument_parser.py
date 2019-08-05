@@ -111,6 +111,13 @@ def parse_submission_arguments():
     )
 
     arg_parser.add_argument(
+        "--sample-submission",
+        type=str,
+        help="File path to the sample submission csv.",
+        default="../input/aptos2019-blindness-detection/sample_submission.csv"
+    )
+
+    arg_parser.add_argument(
         "--device",
         type=str,
         help="Device to use for computation.",
