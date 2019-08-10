@@ -37,7 +37,7 @@ def train(model, train_loader, optimizer, device,criterion, monitor: Optional[AP
 
     losses = torch.stack(losses)
 
-    monitor.on_train_end(losses, optimizer)
+    monitor.on_train_end(losses, optimizer, model.conv1)
 
 
 def test(model: torch.nn.Module, test_loader: TorchDataLoader, device,criterion, monitor: Optional[APTOSMonitor] = None):

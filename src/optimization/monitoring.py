@@ -8,6 +8,8 @@ import torch
 from torch.optim.optimizer import Optimizer
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import Dataset as TorchDataset
+import torchvision.utils as vutils
+
 
 from src.optimization.experiment import Experiment
 from src.visualisations import plot_confusion_matrix
@@ -37,7 +39,9 @@ class APTOSMonitor:
             self._epoch, batch_idx * len(data), len(train_loader.dataset),
                    100. * batch_idx / len(train_loader), loss.item()))
 
-    def on_train_end(self, losses: torch.Tensor, optimizer: Optimizer):
+
+    def on_train_end(self, losses: torch.Tensor, optimizer: Optimizer, layer:torch.Tensor ):
+
 
         for idx, param_group in enumerate(optimizer.param_groups):
             self._summary_writer.add_scalar(
@@ -51,6 +55,15 @@ class APTOSMonitor:
             scalar_value=losses.mean(),
             global_step=self._epoch
         )
+
+        img_weights = vutils.make_grid(layer.weight.cpu().data[:, 0:3, :, :], normalize=True, scale_each=False)
+
+        self._summary_writer.add_image(
+            tag="train/weights",
+            img_tensor=img_weights,
+            global_step=self._epoch,
+        )
+
 
     def on_test_batch_end(self):
         pass
