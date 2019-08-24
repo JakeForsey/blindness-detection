@@ -19,8 +19,8 @@ EXPERIMENTS = [
             (
                 "resize",
                 {
-                    "width": 224,
-                    "height": 224,
+                    "width": 240,
+                    "height": 240,
                 },
             ),
             #(
@@ -65,17 +65,17 @@ EXPERIMENTS = [
             #("horizontal_flip", {}),
             ("grid_distort", {"p": 0.1, "distort_limit": 0.1}),
             ("brightness_contrast", {"p": 0.3, "contrast_limit": 0.3, "brightness_limit": 0.3}),
-            ("crop", {"p": 0.4, "min_max_height": (200, 224), "height": 224, "width": 224, "w2h_ratio": 1.0})
+            ("crop", {"p": 0.4, "min_max_height": (200, 240), "height": 240, "width": 240, "w2h_ratio": 1.0})
         ],
         train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],
-        model=("efficientnet-b0", {"num_classes": 5, "pretrained": True}),
-        batch_size=58,
+        model=("efficientnet-b1", {"num_classes": 5, "pretrained": True}),
+        batch_size=32,
         optimizer=("Adam", {"lr": 1e-5 , "weight_decay": 0.0001}),
         test_size=0.2,
-        max_epochs=120,
+        max_epochs=200,
         sampler=("RandomSampler", {}),
-        lr_scheduler=("ExponentialLR", {"gamma": 0.99})
+        lr_scheduler=("ExponentialLR", {"gamma": 0.985})
     ),
 ]
 

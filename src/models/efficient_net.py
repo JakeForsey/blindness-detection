@@ -248,3 +248,24 @@ def efficientnet_b0(num_classes, shape, pretrained,  **kwargs):
         pretrained=pretrained,
         **kwargs,
     )
+
+def efficientnet_b1(num_classes, shape, pretrained,  **kwargs):
+    r"""ResNet-18 model from
+    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>'_
+
+    Args:
+        shape (tuple): input shape
+        progress (bool): If True, displays a progress bar of the download to stderr
+        num_classes (int): number of classes to classify
+    """
+    if pretrained and shape[0] != 3:
+        raise IncompatibleExperimentConfiguration(
+            "Pretrained efficientnet-b1 can only be used if the input image has 3 channels"
+        )
+
+    return _efficientnet(arch='efficientnet-b1',
+        num_classes=num_classes,
+        image_size=shape[0],
+        pretrained=pretrained,
+        **kwargs,
+    )
