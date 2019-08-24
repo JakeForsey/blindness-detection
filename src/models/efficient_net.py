@@ -4,7 +4,7 @@ from torch.nn import functional as F
 from src.exceptions import IncompatibleExperimentConfiguration
 
 
-from .utils import (
+from .utils_efficientnet import (
     relu_fn,
     round_filters,
     round_repeats,
@@ -203,6 +203,9 @@ class EfficientNet(nn.Module):
         cls._check_model_name_is_valid(model_name)
         _, _, res, _ = efficientnet_params(model_name)
         return res
+
+    def get_first_layer(self):
+       return self._conv_stem.weight
 
     @classmethod
     def _check_model_name_is_valid(cls, model_name, also_need_pretrained_weights=False):
