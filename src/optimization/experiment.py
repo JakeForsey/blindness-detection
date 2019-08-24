@@ -13,6 +13,7 @@ from torch.utils.data.sampler import RandomSampler
 
 from src.models.mnist import MnistExampleV01
 from src.models.resnet import resnet18
+from src.models.efficient_net import efficientnet_b0
 from src.models.resnet import resnext101_32x8d
 from src.preprocess.normalize import crop_dark_borders
 from src.preprocess.normalize import crop_radius
@@ -42,7 +43,8 @@ LR_SCHEDULERS = {
 MODELS = {
     "MnistExampleV01": MnistExampleV01,
     "resnet18": resnet18,
-    "resnext101_32x8d": resnext101_32x8d
+    "resnext101_32x8d": resnext101_32x8d,
+    "efficientnet-b0":efficientnet_b0
 }
 
 PIPELINE_STAGES = {
