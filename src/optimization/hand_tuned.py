@@ -19,8 +19,8 @@ EXPERIMENTS = [
             (
                 "resize",
                 {
-                    "width": 240,
-                    "height": 240,
+                    "width": 224,
+                    "height": 224,
                 },
             ),
             #(
@@ -38,16 +38,22 @@ EXPERIMENTS = [
             #        "border_colour": 0
             #    },
             #),
+            # (
+            #     "bens",
+            #     {
+            #         "image_weight": 4,
+            #         "blur_window": (0, 0),
+            #         "blur_sigma_x": 22,
+            #         "blur_weight": -4,
+            #         "bias": 128,
+            #     },
+            # ),
             (
-                "bens",
-                {
-                    "image_weight": 4,
-                    "blur_window": (0, 0),
-                    "blur_sigma_x": 22,
-                    "blur_weight": -4,
-                    "bias": 128,
-                },
+                "normalize_left_right",
+                {}
+
             ),
+
             (
                 "fill_dark_borders",
                 {},
@@ -61,21 +67,23 @@ EXPERIMENTS = [
         # data set size
         augmentation_stages=[
             # ("none", {})
-            ("rotate", {"limit": (-10, 10), "p": 0.2}),
+            ("rotate", {"limit": (-10, 10), "p": 0.4}),
             #("horizontal_flip", {}),
             ("grid_distort", {"p": 0.1, "distort_limit": 0.1}),
             ("brightness_contrast", {"p": 0.3, "contrast_limit": 0.3, "brightness_limit": 0.3}),
-            ("crop", {"p": 0.4, "min_max_height": (200, 240), "height": 240, "width": 240, "w2h_ratio": 1.0})
+            ("crop", {"p": 0.4, "min_max_height": (200, 224), "height": 224, "width": 224, "w2h_ratio": 1.0}),
+            #this is to apply mean and std normalization as all the pretrained networks are trianed on imagenet
+            ("normalize", {"max_pixel_value": 1.0, "always_apply":True, "p": 1.0}),
         ],
         train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],
-        model=("efficientnet-b1", {"num_classes": 5, "pretrained": True}),
-        batch_size=32,
-        optimizer=("Adam", {"lr": 1e-5 , "weight_decay": 0.0001}),
-        test_size=0.2,
+        model=("efficientnet-b0", {"num_classes": 5, "pretrained": True}),
+        batch_size=54,
+        optimizer=("Adam", {"lr": 1e-5 , "weight_decay": 0.01}),
+        test_size=0.3,
         max_epochs=200,
         sampler=("RandomSampler", {}),
-        lr_scheduler=("ExponentialLR", {"gamma": 0.985})
+        lr_scheduler=("ExponentialLR", {"gamma": 0.99})
     ),
 ]
 
