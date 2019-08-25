@@ -3,6 +3,7 @@ from typing import Optional
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader as TorchDataLoader
+from src.models.utils import get_first_weights
 
 from src.optimization.monitoring import APTOSMonitor
 
@@ -36,8 +37,7 @@ def train(model, train_loader, optimizer, device,criterion, monitor: Optional[AP
         monitor.on_train_batch_end(batch_idx, data, train_loader, loss)
 
     losses = torch.stack(losses)
-
-    monitor.on_train_end(losses, optimizer, model.conv1)
+    monitor.on_train_end(losses, optimizer, get_first_weights(model))
 
 
 def test(model: torch.nn.Module, test_loader: TorchDataLoader, device,criterion, monitor: Optional[APTOSMonitor] = None):
