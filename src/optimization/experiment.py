@@ -80,6 +80,7 @@ class Experiment:
             self,
             pipeline_stages: List[Tuple[str, dict]],
             augmentation_stages: List[Tuple[str, dict]],
+            test_augmentation_stages: List[Tuple[str, dict]],
             train_test_directories: List[str],
             train_test_data_frames: List[str],
             model: Tuple[str, dict],
@@ -96,6 +97,7 @@ class Experiment:
         self._pipeline_stages = pipeline_stages
         # TODO look at albumentations.core.serialization.to_dict and albumentations.core.serialization.from_dict
         self._augmentation_stages = augmentation_stages
+        self._test_augmentation_stages = test_augmentation_stages
         self._train_test_directories = train_test_directories
         self._train_test_data_frames = train_test_data_frames
         self._model_string, self._model_kwargs = model
@@ -122,6 +124,9 @@ class Experiment:
 
     def augmentation_stages(self):
         return [(AUGMENTATION_STAGES[aug_stage], kwargs) for aug_stage, kwargs in self._augmentation_stages]
+
+    def test_augmentation_stages(self):
+        return [(AUGMENTATION_STAGES[aug_stage], kwargs) for aug_stage, kwargs in self._test_augmentation_stages]
 
     def train_test_directories(self) -> List[str]:
         return self._train_test_directories
