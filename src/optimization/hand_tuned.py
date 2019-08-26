@@ -38,21 +38,21 @@ EXPERIMENTS = [
             #        "border_colour": 0
             #    },
             #),
-            (
-                "bens",
-                {
-                    "image_weight": 4,
-                    "blur_window": (0, 0),
-                    "blur_sigma_x": 22,
-                    "blur_weight": -4,
-                    "bias": 128,
-                },
-            ),
-            (
-                "normalize_left_right",
-                {}
-
-            ),
+            # (
+            #     "bens",
+            #     {
+            #         "image_weight": 4,
+            #         "blur_window": (0, 0),
+            #         "blur_sigma_x": 22,
+            #         "blur_weight": -4,
+            #         "bias": 128,
+            #     },
+            # ),
+            # (
+            #     "normalize_left_right",
+            #     {}
+            #
+            # ),
 
             (
                 "fill_dark_borders",
@@ -68,7 +68,7 @@ EXPERIMENTS = [
         augmentation_stages=[
             # ("none", {})
             ("rotate", {"limit": (-10, 10), "p": 0.4}),
-            #("horizontal_flip", {}),
+            ("horizontal_flip", {}),
             ("grid_distort", {"p": 0.1, "distort_limit": 0.1}),
             ("brightness_contrast", {"p": 0.3, "contrast_limit": 0.3, "brightness_limit": 0.3}),
             ("crop", {"p": 0.4, "min_max_height": (200, 224), "height": 224, "width": 224, "w2h_ratio": 1.0}),
