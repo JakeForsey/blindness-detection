@@ -80,7 +80,6 @@ class Experiment:
             self,
             pipeline_stages: List[Tuple[str, dict]],
             augmentation_stages: List[Tuple[str, dict]],
-            test_augmentation_stages: List[Tuple[str, dict]],
             train_test_directories: List[str],
             train_test_data_frames: List[str],
             model: Tuple[str, dict],
@@ -91,7 +90,7 @@ class Experiment:
             sampler: Tuple[str, dict],
             lr_scheduler: Tuple[str, dict],
             description: Optional[str] = None,
-
+            test_augmentation_stages: List[Tuple[str, dict]] = [("normalize", {"max_pixel_value": 1.0, "always_apply": True, "p": 1.0})],
     ):
         self._id = str(uuid4())
         self._pipeline_stages = pipeline_stages
@@ -160,20 +159,40 @@ class Experiment:
 
     @staticmethod
     def from_dict(state_dict):
-        return Experiment(
-            pipeline_stages=state_dict["pipeline_stages"],
-            train_test_directories=state_dict["train_test_directories"],
-            train_test_data_frames=state_dict["train_test_data_frames"],
-            model=(state_dict["model"], state_dict["model_kwargs"]),
-            batch_size=state_dict["batch_size"],
-            optimizer=(state_dict["optimizer"], state_dict["optimizer_kwargs"]),
-            test_size=state_dict["test_size"],
-            max_epochs=state_dict["pipeline_stages"],
-            sampler=(state_dict["sampler"], state_dict["sampler_kwargs"]),
-            description=state_dict["description"],
-            augmentation_stages=state_dict["augmentation_stages"],
-            lr_scheduler=(state_dict["lr_scheduler"], state_dict["lr_scheduler_kwargs"])
-        )
+        test_augmentation_stages = state_dict.get("test_augmentation_stages", None)
+
+        if test_augmentation_stages is None:
+            return Experiment(
+                pipeline_stages=state_dict["pipeline_stages"],
+                train_test_directories=state_dict["train_test_directories"],
+                train_test_data_frames=state_dict["train_test_data_frames"],
+                model=(state_dict["model"], state_dict["model_kwargs"]),
+                batch_size=state_dict["batch_size"],
+                optimizer=(state_dict["optimizer"], state_dict["optimizer_kwargs"]),
+                test_size=state_dict["test_size"],
+                max_epochs=state_dict["pipeline_stages"],
+                sampler=(state_dict["sampler"], state_dict["sampler_kwargs"]),
+                description=state_dict["description"],
+                augmentation_stages=state_dict["augmentation_stages"],
+                lr_scheduler=(state_dict["lr_scheduler"], state_dict["lr_scheduler_kwargs"])
+            )
+        else:
+            return Experiment(
+                pipeline_stages=state_dict["pipeline_stages"],
+                train_test_directories=state_dict["train_test_directories"],
+                train_test_data_frames=state_dict["train_test_data_frames"],
+                model=(state_dict["model"], state_dict["model_kwargs"]),
+                batch_size=state_dict["batch_size"],
+                optimizer=(state_dict["optimizer"], state_dict["optimizer_kwargs"]),
+                test_size=state_dict["test_size"],
+                max_epochs=state_dict["pipeline_stages"],
+                sampler=(state_dict["sampler"], state_dict["sampler_kwargs"]),
+                description=state_dict["description"],
+                augmentation_stages=state_dict["augmentation_stages"],
+                test_augmentation_stages=test_augmentation_stages,
+                lr_scheduler=(state_dict["lr_scheduler"], state_dict["lr_scheduler_kwargs"])
+            )
+
 
     def to_json(self):
         return json.dumps(self.state_dict())
@@ -195,6 +214,7 @@ class Experiment:
             "sampler": self._sampler_string,
             "sampler_kwargs": self._sampler_kwargs,
             "augmentation_stages": self._augmentation_stages,
+            "test_augmentation_stages": self._test_augmentation_stages,
             "lr_scheduler": self._lr_scheduler_string,
             "lr_scheduler_kwargs": self._lr_scheduler_kwargs
         }

@@ -59,14 +59,27 @@ class AugmentedCollate:
         :return: None
         """
         # TODO Handle the case when the input dataset is the submission data set (AKA no diagnoses)
-        images, diagnoses, ids = zip(*data)
+        try:
+            images, diagnoses, ids = zip(*data)
 
-        augmented_images = [self._augmentations(force_apply=False, image=image.transpose(1, 2, 0))["image"] for image in images]
+            augmented_images = [self._augmentations(force_apply=False, image=image.transpose(1, 2, 0))["image"] for
+                                image in images]
 
-        # Use the default_collate after augmentation
-        return default_collate(
-            [(image.transpose(2, 0, 1), diagnosis, id_) for image, diagnosis, id_ in zip(augmented_images, diagnoses, ids)]
-        )
+            # Use the default_collate after augmentation
+            return default_collate(
+                [(image.transpose(2, 0, 1), diagnosis, id_) for image, diagnosis, id_ in
+                 zip(augmented_images, diagnoses, ids)]
+            )
+
+        except ValueError:
+            images, ids = zip(*data)
+
+            augmented_images = [self._augmentations(force_apply=False, image=image.transpose(1, 2, 0))["image"] for image in images]
+
+            # Use the default_collate after augmentation
+            return default_collate(
+                [(image.transpose(2, 0, 1), id_) for image, id_ in zip(augmented_images, ids)]
+            )
 
     @staticmethod
     def initialise_stages(stages: List[Tuple[str, dict]]) -> List[Tuple[Callable, dict]]:

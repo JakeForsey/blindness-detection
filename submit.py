@@ -19,6 +19,7 @@ from src.optimization.experiment import Experiment
 from src.data.dataset import APTOSSubmissionDataset
 from src.preprocess.pipeline import Pipeline
 from src.preprocess.normalize import eight_bit_normalization
+from src.preprocess.augmentation import AugmentedCollate
 from src.ml import inference
 
 
@@ -50,6 +51,7 @@ def main(
 
     dfs = experiment.train_test_data_frames()
     directories = experiment.train_test_directories()
+    test_augmentations = AugmentedCollate(experiment.test_augmentation_stages())
 
     dataset = TorchConcatDataset(
         [APTOSSubmissionDataset(df, directory, pipeline) for df, directory in zip(dfs, directories)]
@@ -59,6 +61,7 @@ def main(
     loader = TorchDataLoader(
         dataset,
         batch_size=experiment.batch_size(),
+        collate_fn=test_augmentations
     )
     print("Initialised loader")
 
