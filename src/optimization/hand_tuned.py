@@ -74,8 +74,6 @@ EXPERIMENTS = [
             ("crop", {"p": 0.4, "min_max_height": (200, 224), "height": 224, "width": 224, "w2h_ratio": 1.0}),
             #this is to apply mean and std normalization as all the pretrained networks are trianed on imagenet
             ("normalize", {"max_pixel_value": 1.0, "always_apply":True, "p": 1.0}),
-        ],
-
         test_augmentation_stages=[
             ("normalize", {"max_pixel_value": 1.0, "always_apply": True, "p": 1.0}),
         ],
