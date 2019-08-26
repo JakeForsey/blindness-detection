@@ -50,6 +50,7 @@ def run_experiment(
     pipeline = Pipeline(experiment.pipeline_stages(), debug=debug_pipeline)
     #augmentations
     augmentations = AugmentedCollate(experiment.augmentation_stages())
+    test_augmentations = AugmentedCollate(experiment.test_augmentation_stages())
 
     dfs = experiment.train_test_data_frames()
     directories = experiment.train_test_directories()
@@ -117,6 +118,7 @@ def run_experiment(
                 test_ds,
                 batch_size=experiment.batch_size(),
                 num_workers=data_loader_workers,
+                collate_fn = test_augmentations
             )
 
             model = experiment.model(input_shape=train_ds[0][0].shape)

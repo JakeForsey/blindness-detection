@@ -38,16 +38,16 @@ EXPERIMENTS = [
             #        "border_colour": 0
             #    },
             #),
-            # (
-            #     "bens",
-            #     {
-            #         "image_weight": 4,
-            #         "blur_window": (0, 0),
-            #         "blur_sigma_x": 22,
-            #         "blur_weight": -4,
-            #         "bias": 128,
-            #     },
-            # ),
+            (
+                "bens",
+                {
+                    "image_weight": 4,
+                    "blur_window": (0, 0),
+                    "blur_sigma_x": 22,
+                    "blur_weight": -4,
+                    "bias": 128,
+                },
+            ),
             (
                 "normalize_left_right",
                 {}
@@ -75,6 +75,11 @@ EXPERIMENTS = [
             #this is to apply mean and std normalization as all the pretrained networks are trianed on imagenet
             ("normalize", {"max_pixel_value": 1.0, "always_apply":True, "p": 1.0}),
         ],
+
+        test_augmentation_stages=[
+            ("normalize", {"max_pixel_value": 1.0, "always_apply": True, "p": 1.0}),
+        ],
+
         train_test_data_frames=["data/aptos2019-blindness-detection/train.csv"],
         train_test_directories=["data/aptos2019-blindness-detection/train_images"],
         model=("efficientnet-b0", {"num_classes": 5, "pretrained": True}),
