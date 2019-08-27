@@ -125,4 +125,10 @@ def parse_submission_arguments():
         choices=["cpu", "cuda:0", "cuda:1"]
     )
 
+    arg_parser.add_argument(
+        "--samples-to-visualise",
+        type=int,
+        help="Number of submission samples to visualise.",
+        default=0,
+    )
     return arg_parser.parse_args()

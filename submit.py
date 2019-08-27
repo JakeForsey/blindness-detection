@@ -121,5 +121,6 @@ if __name__ == "__main__":
         data_directory=args.data_directory,
         data_frame=args.data_frame,
         sample_submission=args.sample_submission,
-        device=args.device
+        device=args.device,
+        samples_to_visualise=args.samples_to_visualise
     )
